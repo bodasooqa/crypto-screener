@@ -1,0 +1,9 @@
+@import "src/styles/variables";
+
+.app-button {
+  border: none;
+  background: $primary-color;
+  outline: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+}

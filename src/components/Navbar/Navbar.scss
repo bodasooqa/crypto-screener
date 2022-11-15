@@ -1,0 +1,17 @@
+@import "src/styles/variables";
+
+.navbar {
+  background: $main-color;
+
+  &__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    color: white;
+  }
+
+  &__title {
+    font-weight: 300;
+  }
+}
