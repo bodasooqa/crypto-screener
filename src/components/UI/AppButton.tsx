@@ -3,7 +3,7 @@ import './AppButton.scss';
 
 interface AppButtonProps {
   children?: string;
-  onClick: () => void;
+  onClick?: () => void;
 }
 
 const AppButton: FC<AppButtonProps> = ({ children, onClick }) => {
