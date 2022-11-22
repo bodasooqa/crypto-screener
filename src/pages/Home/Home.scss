@@ -1,0 +1,11 @@
+.home {
+  &__content {
+    padding: 16px 0;
+  }
+
+  &__pairs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}

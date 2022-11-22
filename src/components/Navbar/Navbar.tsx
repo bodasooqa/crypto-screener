@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
 import './Navbar.scss';
-import AppButton from '../UI/AppButton';
+import AppButton from '../UI/AppButton/AppButton';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { Context } from '../../index';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
 const Navbar = () => {
-  const { auth } = useContext(Context);
+  const { auth } = useContext(Context).firebase;
   const [globalUser] = useAuthState(auth);
 
   const login = async () => {
