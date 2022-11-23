@@ -1,6 +1,40 @@
+@import "src/styles/variables";
+
 .pair-item {
-  padding: 16px;
-  border: 1px solid #d2d7dd;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
   flex: 0 0 calc(33% - 39px);
+  padding: 16px 16px 0;
+  border: 1px solid $gray-color;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -20px;
+  overflow: hidden;
+
+  &__exchange {
+    font-size: 12px;
+    font-weight: 300;
+    margin-bottom: 2px;
+  }
+
+  &__symbol {
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  &__actual-price {
+    font-weight: 500;
+
+    &--green {
+      color: $green-color;
+    }
+
+    &--red {
+      color: $red-color;
+    }
+  }
+
+  &__chart {
+    width: calc(100% + 25px * 2);
+    margin: 10px -25px 0;
+  }
 }

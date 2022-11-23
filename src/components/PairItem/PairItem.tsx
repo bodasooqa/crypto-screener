@@ -1,41 +1,71 @@
-import React, { FC, useContext, useEffect } from 'react';
+import React, { createRef, FC, useContext, useEffect, useState } from 'react';
 import './PairItem.scss';
 import { Context } from '../../index';
+import { useFetching } from '../../hooks/useFetching';
+import { BybitKline } from '../../models/bybit.model';
+import { useChart, useKlineData, useSocket } from './PartItem.hooks';
+import { updateKline } from '../../utils/kline.utils';
 
 interface PairItemProps {
+  exchange: string;
   pair: string;
   onClick?: () => void;
 }
 
-const PairItem: FC<PairItemProps> = ({ pair }) => {
+const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
   const { network } = useContext(Context);
 
+  const [kline, setKline] = useState<BybitKline>([]);
+
+  const [actualPrice, actualColor, chartData] = useKlineData(kline);
+
+  const { initChart, updateChart } = useChart();
+
+  const [getKline, isLoading, error] = useFetching(async () => {
+    const { data } = await network.bybit.getKline(pair, '1m', 20);
+    setKline(data)
+  });
+
+  const initSocket = useSocket(pair, (candleData) => {
+    setKline(oldKline => {
+      const updatedKline = updateKline(oldKline, candleData);
+      return [...updatedKline];
+    });
+  });
+
+  const chartRef = createRef<HTMLDivElement>();
+
+  const initPair = async (element: HTMLDivElement) => {
+    await getKline();
+    initSocket();
+    initChart(element);
+  }
+
   useEffect(() => {
-    network.bybit.getKline(pair, '1m', 20);
-  //
-  //   const wsClient = new WebSocket(process.env.REACT_APP_BYBIT_WSS as string);
-  //
-  //   wsClient.addEventListener('open', () => {
-  //     console.log('Opened');
-  //     wsClient.send(JSON.stringify({
-  //       op: 'subscribe',
-  //       args: [`kline.1m.${ pair }`],
-  //     }));
-  //   });
-  //
-  //   wsClient.addEventListener('message', ({ data }) => {
-  //     const parsedData = JSON.parse(data);
-  //
-  //     if (!!parsedData.data) {
-  //       console.log('New message:')
-  //       console.log(new Date(parsedData.data.t), '\n');
-  //     }
-  //   });
+    console.log('Update')
+    updateChart(chartData);
+  }, [chartData]);
+
+  useEffect(() => {
+    initPair(chartRef.current as HTMLDivElement);
   }, []);
 
   return (
-    <div className='pair-item'>
-      {pair}
+    <div className="pair-item">
+      <span className="pair-item__exchange">
+        { exchange.toUpperCase() }
+      </span>
+      <span className="pair-item__symbol">
+        { pair }
+      </span>
+
+      { isLoading
+        ? <div className="pair-item__loading-state" />
+        : <span className={ ['pair-item__actual-price', `pair-item__actual-price--${ actualColor }`].join(' ') }>
+          { actualPrice }
+        </span> }
+
+      <div ref={chartRef} className="pair-item__chart"></div>
     </div>
   );
 };

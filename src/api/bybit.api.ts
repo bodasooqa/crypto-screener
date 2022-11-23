@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { BybitKline } from '../models/bybit.model';
 
 export class BybitApi {
   private axios: AxiosInstance;
@@ -10,7 +11,7 @@ export class BybitApi {
   }
 
   getKline(symbol: string, interval: string, limit: number = 20) {
-    return this.axios.get('kline', {
+    return this.axios.get<BybitKline>('kline', {
       params: { symbol, interval, limit }
     });
   }
