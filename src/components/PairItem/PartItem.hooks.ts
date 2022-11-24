@@ -1,15 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BybitKline, BybitKlineItem } from '../../models/bybit.model';
 import { createChart, IChartApi, ISeriesApi, LineData, UTCTimestamp } from 'lightweight-charts';
-import { getColor } from '../../utils/kline.utils';
+import { getColor } from '../../utils/kline';
+import { baseChartConfig, baseLineConfig } from '../../utils/constants';
+import { logWS } from '../../utils/logger';
 
-type IUseKlineData = [
-  string,
-  string,
-  LineData[]
-]
-
-export const useKlineData = (kline: BybitKline): IUseKlineData => {
+export const useKlineData = (kline: BybitKline) => {
   const actualPrice = useMemo(() => {
     return kline[kline.length - 1]?.c;
   }, [kline]);
@@ -29,81 +25,80 @@ export const useKlineData = (kline: BybitKline): IUseKlineData => {
     }));
   }, [kline]);
 
-  return [actualPrice, actualColor, chartData];
+  return { actualPrice, actualColor, chartData };
 }
 
 export const useSocket = (pair: string, callback: (candleData: BybitKlineItem) => void) => {
-  return () => {
-    const wsClient = new WebSocket(process.env.REACT_APP_BYBIT_WSS as string);
+  const [wsClient, setWsClient] = useState<WebSocket | null>(null);
+  const [wsClientInitiated, setWsClientInitiated] = useState(false);
 
-    wsClient.addEventListener('open', () => {
-      console.log('Opened');
-      wsClient.send(JSON.stringify({
-        op: 'subscribe',
-        args: [`kline.1m.${ pair }`],
-      }));
-    });
+  const initSocket = () => {
+    setWsClient(new WebSocket(process.env.REACT_APP_BYBIT_WSS as string));
+  }
 
-    wsClient.addEventListener('message', ({ data }) => {
-      const parsedData = JSON.parse(data);
-      const candleData: BybitKlineItem = parsedData.data;
+  const closeConnection = () => {
+    wsClient?.close();
+  }
 
-      if (!!candleData) {
-        console.log('New message:')
-        console.log(candleData.t, candleData.c);
+  const onOpen = () => {
+    logWS('Opened');
 
-        callback(candleData);
-      }
-    });
-  };
-}
-
-interface IUseChart {
-  initChart(element: HTMLDivElement): void;
-  updateChart(chartData: LineData[]): void;
-}
-
-export const useChart = (): IUseChart => {
-  const [chart, setChart] = useState<IChartApi | null>(null);
-  const [lineSeries, setLineSeries] = useState<ISeriesApi<'Area'> | null>(null);
-
-  const initChart = (element: HTMLDivElement) => {
-    setChart(createChart(element as HTMLElement, {
-      width: element.clientWidth,
-      height: 100,
-      grid: {
-        vertLines: { visible: false },
-        horzLines: { visible: false },
-      },
-      rightPriceScale: { visible: false },
-      timeScale: { visible: false },
-      handleScale: false,
-      handleScroll: false,
-      crosshair: {
-        vertLine: {
-          visible: false,
-          labelVisible: false
-        },
-        horzLine: {
-          visible: false,
-          labelVisible: false
-        }
-      }
+    wsClient?.send(JSON.stringify({
+      op: 'subscribe',
+      args: [`kline.1m.${ pair }`],
     }));
+
+    setInterval(() => {
+      logWS('ping')
+
+      wsClient?.send(JSON.stringify({
+        op: 'ping'
+      }));
+    }, 30000);
+  }
+
+  const onMessage = ({ data }: MessageEvent) => {
+    const parsedData = JSON.parse(data);
+    const candleData: BybitKlineItem = parsedData.data;
+
+    if (data.op === 'pong') {
+      logWS('Pong received')
+    }
+
+    if (!!candleData) {
+      logWS('Message received:', candleData)
+
+      callback(candleData);
+    }
   }
 
   useEffect(() => {
-    if (!!chart && !lineSeries) {
-      setLineSeries(chart.addAreaSeries({
-        crosshairMarkerVisible: false,
-        lineColor: '#192837',
-        topColor: '#192837',
-        bottomColor: 'rgba(25, 40, 55, 0.2)',
-        baseLineVisible: false,
-        priceLineVisible: false
-      }));
+    if (!!wsClient && !wsClientInitiated) {
+      setWsClientInitiated(true);
+
+      wsClient.addEventListener('open', onOpen);
+      wsClient.addEventListener('message', onMessage);
+      wsClient.addEventListener('close', () => {
+        logWS('Connection closed');
+      });
     }
-  }, [chart]);
+  }, [wsClient]);
+
+  return { initSocket, closeConnection };
+}
+
+export const useChart = () => {
+  const [chart, setChart] = useState<IChartApi | null>(null);
+  const [lineSeries, setLineSeries] = useState<ISeriesApi<'Area'> | null>(null);
+  const [chartInitiated, setChartInitiated] = useState(false);
+
+  const initChart = (chartId: string) => {
+    const element = document.getElementById(chartId) as HTMLDivElement;
+    setChart(createChart(element as HTMLDivElement, {
+      ...baseChartConfig,
+      width: element.clientWidth,
+    }));
+  }
 
   const updateChart = (chartData: LineData[]) => {
     if (!!lineSeries) {
@@ -125,5 +120,17 @@ export const useChart = (): IUseChart => {
     }
   }
 
-  return { initChart, updateChart };
+  useEffect(() => {
+    if (!!chart && !lineSeries) {
+      setLineSeries(chart.addAreaSeries(baseLineConfig));
+    }
+  }, [chart]);
+
+  useEffect(() => {
+    if (!!chart && !!lineSeries && !chartInitiated) {
+      setChartInitiated(true);
+    }
+  }, [chart, lineSeries]);
+
+  return { chartInitiated, initChart, updateChart };
 }

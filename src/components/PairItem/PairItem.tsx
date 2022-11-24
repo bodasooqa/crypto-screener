@@ -1,10 +1,10 @@
-import React, { createRef, FC, useContext, useEffect, useState } from 'react';
+import React, { FC, useContext, useEffect, useState } from 'react';
 import './PairItem.scss';
 import { Context } from '../../index';
 import { useFetching } from '../../hooks/useFetching';
 import { BybitKline } from '../../models/bybit.model';
 import { useChart, useKlineData, useSocket } from './PartItem.hooks';
-import { updateKline } from '../../utils/kline.utils';
+import { updateKline } from '../../utils/kline';
 import Loader from '../Loader/Loader';
 
 interface PairItemProps {
@@ -16,38 +16,45 @@ interface PairItemProps {
 const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
   const { network } = useContext(Context);
 
+  const chartId = `chart-${ pair }`;
+
   const [kline, setKline] = useState<BybitKline>([]);
-
-  const [actualPrice, actualColor, chartData] = useKlineData(kline);
-
-  const { initChart, updateChart } = useChart();
 
   const [getKline, isLoading, error] = useFetching(async () => {
     const { data } = await network.bybit.getKline(pair, '1m', 20);
     setKline(data)
   });
 
-  const initSocket = useSocket(pair, (candleData) => {
+  const { actualPrice, actualColor, chartData } = useKlineData(kline);
+  const { chartInitiated, initChart, updateChart } = useChart();
+  const { initSocket, closeConnection } = useSocket(pair, (candleData) => {
     setKline(oldKline => {
       const updatedKline = updateKline(oldKline, candleData);
       return [...updatedKline];
     });
   });
 
-  const chartRef = createRef<HTMLDivElement>();
-
-  const initPair = async (element: HTMLDivElement) => {
+  const initPair = async () => {
     await getKline();
-    initSocket();
-    initChart(element);
+
+    setTimeout(() => {
+      initChart(chartId);
+      initSocket();
+    }, 0)
   }
 
   useEffect(() => {
-    updateChart(chartData);
-  }, [chartData]);
+    if (chartInitiated) {
+      updateChart(chartData);
+    }
+  }, [chartInitiated, chartData]);
 
   useEffect(() => {
-    initPair(chartRef.current as HTMLDivElement);
+    initPair();
+
+    return () => {
+      closeConnection();
+    }
   }, []);
 
   return (
@@ -67,7 +74,7 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
           <span className={ ['pair-item__actual-price', `pair-item__actual-price--${ actualColor }`].join(' ') }>
             { actualPrice }
           </span>
-          <div ref={ chartRef } className="pair-item__chart"></div>
+          <div id={ chartId } className="pair-item__chart"></div>
         </div> }
     </div>
   );
