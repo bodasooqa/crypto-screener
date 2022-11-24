@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { BybitKline, BybitKlineItem } from '../../models/bybit.model';
+import { BybitKlineItem } from '../../models/bybit.model';
 import { createChart, IChartApi, ISeriesApi, LineData, UTCTimestamp } from 'lightweight-charts';
 import { getColor } from '../../utils/kline';
 import { baseChartConfig, baseLineConfig } from '../../utils/constants';
 import { logWS } from '../../utils/logger';
+import { Kline } from '../../models/kline.model';
+import { Exchange } from '../../models/exchange.model';
 
-export const useKlineData = (kline: BybitKline) => {
+export const useKlineData = (kline: Kline) => {
   const actualPrice = useMemo(() => {
     return kline[kline.length - 1]?.c;
   }, [kline]);
@@ -28,13 +30,41 @@ export const useKlineData = (kline: BybitKline) => {
   return { actualPrice, actualColor, chartData };
 }
 
-export const useSocket = (pair: string, callback: (candleData: BybitKlineItem) => void) => {
+export const useSocket = (pair: string, exchange: Exchange, callback: (candleData: BybitKlineItem) => void) => {
   const [wsClient, setWsClient] = useState<WebSocket | null>(null);
   const [wsClientInitiated, setWsClientInitiated] = useState(false);
   const [pingInterval, setPingInterval] = useState<NodeJS.Timer | null>(null);
 
+  const getWSSEndpoint = (): string => {
+    switch (exchange) {
+      case Exchange.BYBIT:
+        return process.env.REACT_APP_BYBIT_WSS!;
+      case Exchange.BINANCE:
+        return `${ process.env.REACT_APP_BINANCE_WSS }/${ pair.toLowerCase() }@kline_1m`;
+    }
+  }
+
+  const getWSSParams = (): any => {
+    switch (exchange) {
+      case Exchange.BYBIT:
+        return {
+          op: 'subscribe',
+          args: [`kline.1m.${ pair }`],
+        }
+      case Exchange.BINANCE:
+        return {
+          method: 'SUBSCRIBE',
+          params: [`${ pair.toLowerCase() }@kline_1m`]
+        }
+    }
+  }
+
   const initSocket = () => {
-    setWsClient(new WebSocket(process.env.REACT_APP_BYBIT_WSS as string));
+    setWsClient(
+      new WebSocket(
+        getWSSEndpoint()
+      )
+    );
   }
 
   const closeConnection = () => {
@@ -48,25 +78,28 @@ export const useSocket = (pair: string, callback: (candleData: BybitKlineItem) =
   const onOpen = () => {
     logWS('Opened');
 
-    wsClient?.send(JSON.stringify({
-      op: 'subscribe',
-      args: [`kline.1m.${ pair }`],
-    }));
+    if (exchange === Exchange.BYBIT) {
+      wsClient?.send(
+        JSON.stringify(
+          getWSSParams()
+        )
+      );
 
-    setPingInterval(
-      setInterval(() => {
-        logWS('ping')
+      setPingInterval(
+        setInterval(() => {
+          logWS('ping')
 
-        wsClient?.send(JSON.stringify({
-          op: 'ping'
-        }));
-      }, 30000)
-    );
+          wsClient?.send(JSON.stringify({
+            op: 'ping'
+          }));
+        }, 30000)
+      );
+    }
   }
 
   const onMessage = ({ data }: MessageEvent) => {
     const parsedData = JSON.parse(data);
-    const candleData: BybitKlineItem = parsedData.data;
+    const candleData: BybitKlineItem = parsedData.data || parsedData.k;
 
     if (data.op === 'pong') {
       logWS('Pong received')

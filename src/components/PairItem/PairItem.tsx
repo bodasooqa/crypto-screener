@@ -2,13 +2,14 @@ import React, { FC, useContext, useEffect, useState } from 'react';
 import './PairItem.scss';
 import { Context } from '../../index';
 import { useFetching } from '../../hooks/useFetching';
-import { BybitKline } from '../../models/bybit.model';
 import { useChart, useKlineData, useSocket } from './PartItem.hooks';
-import { updateKline } from '../../utils/kline';
+import { formatKline, updateKline } from '../../utils/kline';
 import Loader from '../Loader/Loader';
+import { Exchange } from '../../models/exchange.model';
+import { Kline } from '../../models/kline.model';
 
 interface PairItemProps {
-  exchange: string;
+  exchange: Exchange;
   pair: string;
   onClick?: () => void;
 }
@@ -16,18 +17,18 @@ interface PairItemProps {
 const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
   const { network } = useContext(Context);
 
-  const chartId = `chart-${ pair }`;
+  const chartId = `chart-${ exchange }-${ pair }`;
 
-  const [kline, setKline] = useState<BybitKline>([]);
+  const [kline, setKline] = useState<Kline>([]);
 
   const [getKline, isLoading, error] = useFetching(async () => {
-    const { data } = await network.bybit.getKline(pair, '1m', 20);
-    setKline(data)
+    const { data } = await network[exchange].getKline(pair, '1m', 20);
+    setKline(formatKline(data, exchange));
   });
 
   const { actualPrice, actualColor, chartData } = useKlineData(kline);
   const { chartInitiated, initChart, updateChart } = useChart();
-  const { initSocket, closeConnection } = useSocket(pair, (candleData) => {
+  const { initSocket, closeConnection } = useSocket(pair, exchange, (candleData) => {
     setKline(oldKline => {
       const updatedKline = updateKline(oldKline, candleData);
       return [...updatedKline];

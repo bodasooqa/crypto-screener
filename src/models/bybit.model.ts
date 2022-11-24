@@ -1,10 +1,10 @@
-export interface BybitKlineItem {
-  c: string;
+import { KlineItem } from './kline.model';
+
+export interface BybitKlineItem extends KlineItem {
   h: string;
   l: string;
   o: string;
   s: string;
-  t: number;
 }
 
 export type BybitKline = BybitKlineItem[];
