@@ -31,12 +31,17 @@ export const useKlineData = (kline: BybitKline) => {
 export const useSocket = (pair: string, callback: (candleData: BybitKlineItem) => void) => {
   const [wsClient, setWsClient] = useState<WebSocket | null>(null);
   const [wsClientInitiated, setWsClientInitiated] = useState(false);
+  const [pingInterval, setPingInterval] = useState<NodeJS.Timer | null>(null);
 
   const initSocket = () => {
     setWsClient(new WebSocket(process.env.REACT_APP_BYBIT_WSS as string));
   }
 
   const closeConnection = () => {
+    if (!!pingInterval) {
+      clearInterval(pingInterval);
+    }
+
     wsClient?.close();
   }
 
@@ -48,13 +53,15 @@ export const useSocket = (pair: string, callback: (candleData: BybitKlineItem) =
       args: [`kline.1m.${ pair }`],
     }));
 
-    setInterval(() => {
-      logWS('ping')
+    setPingInterval(
+      setInterval(() => {
+        logWS('ping')
 
-      wsClient?.send(JSON.stringify({
-        op: 'ping'
-      }));
-    }, 30000);
+        wsClient?.send(JSON.stringify({
+          op: 'ping'
+        }));
+      }, 30000)
+    );
   }
 
   const onMessage = ({ data }: MessageEvent) => {
