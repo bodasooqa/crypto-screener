@@ -5,6 +5,7 @@ import { useFetching } from '../../hooks/useFetching';
 import { BybitKline } from '../../models/bybit.model';
 import { useChart, useKlineData, useSocket } from './PartItem.hooks';
 import { updateKline } from '../../utils/kline.utils';
+import Loader from '../Loader/Loader';
 
 interface PairItemProps {
   exchange: string;
@@ -42,7 +43,6 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
   }
 
   useEffect(() => {
-    console.log('Update')
     updateChart(chartData);
   }, [chartData]);
 
@@ -60,12 +60,15 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
       </span>
 
       { isLoading
-        ? <div className="pair-item__loading-state" />
-        : <span className={ ['pair-item__actual-price', `pair-item__actual-price--${ actualColor }`].join(' ') }>
-          { actualPrice }
-        </span> }
-
-      <div ref={chartRef} className="pair-item__chart"></div>
+        ? <div className="pair-item__loading-state">
+          <Loader />
+        </div>
+        : <div className="pair-item__content">
+          <span className={ ['pair-item__actual-price', `pair-item__actual-price--${ actualColor }`].join(' ') }>
+            { actualPrice }
+          </span>
+          <div ref={ chartRef } className="pair-item__chart"></div>
+        </div> }
     </div>
   );
 };
