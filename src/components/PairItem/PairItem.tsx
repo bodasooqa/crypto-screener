@@ -5,16 +5,17 @@ import { useFetching } from '../../hooks/useFetching';
 import { useChart, useKlineData, useSocket } from './PartItem.hooks';
 import { formatKline, updateKline } from '../../utils/kline';
 import Loader from '../Loader/Loader';
-import { Exchange } from '../../models/exchange.model';
+import { Exchange, KlineInterval } from '../../models/exchange.model';
 import { Kline } from '../../models/kline.model';
 
 interface PairItemProps {
   exchange: Exchange;
   pair: string;
+  interval: KlineInterval;
   onClick?: () => void;
 }
 
-const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
+const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
   const { network } = useContext(Context);
 
   const chartId = `chart-${ exchange }-${ pair }`;
@@ -22,13 +23,13 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
   const [kline, setKline] = useState<Kline>([]);
 
   const [getKline, isLoading, error] = useFetching(async () => {
-    const { data } = await network[exchange].getKline(pair, '1m', 20);
+    const { data } = await network[exchange].getKline(pair, interval, 20);
     setKline(formatKline(data, exchange));
   });
 
   const { actualPrice, actualColor, chartData } = useKlineData(kline);
   const { chartInitiated, initChart, updateChart } = useChart();
-  const { initSocket, closeConnection } = useSocket(pair, exchange, (candleData) => {
+  const { initSocket, closeConnection } = useSocket(pair, exchange, interval, (candleData) => {
     setKline(oldKline => {
       const updatedKline = updateKline(oldKline, candleData);
       return [...updatedKline];

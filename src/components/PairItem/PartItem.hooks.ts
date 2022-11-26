@@ -5,7 +5,7 @@ import { getColor } from '../../utils/kline';
 import { baseChartConfig, baseLineConfig } from '../../utils/constants';
 import { logWS } from '../../utils/logger';
 import { Kline } from '../../models/kline.model';
-import { Exchange } from '../../models/exchange.model';
+import { Exchange, KlineInterval } from '../../models/exchange.model';
 
 export const useKlineData = (kline: Kline) => {
   const actualPrice = useMemo(() => {
@@ -30,7 +30,12 @@ export const useKlineData = (kline: Kline) => {
   return { actualPrice, actualColor, chartData };
 }
 
-export const useSocket = (pair: string, exchange: Exchange, callback: (candleData: BybitKlineItem) => void) => {
+export const useSocket = (
+  pair: string,
+  exchange: Exchange,
+  interval: KlineInterval,
+  callback: (candleData: BybitKlineItem) => void
+) => {
   const [wsClient, setWsClient] = useState<WebSocket | null>(null);
   const [wsClientInitiated, setWsClientInitiated] = useState(false);
   const [pingInterval, setPingInterval] = useState<NodeJS.Timer | null>(null);
