@@ -26,6 +26,16 @@ export const getColor = (kline: Kline | LineData[], colorSet: KlineColorSet) => 
   }
 }
 
+export const getChartColor = (chartData: LineData[], dayOpenPrice: number, colorSet: KlineColorSet) => {
+  if (chartData[chartData.length - 1].value > dayOpenPrice) {
+    return colorSet.green;
+  } else if (chartData[chartData.length - 1].value < dayOpenPrice) {
+    return colorSet.red;
+  } else {
+    return colorSet.normal;
+  }
+}
+
 export const updateKline = (kline: Kline, candle: KlineItem): Kline => {
   if (kline[kline.length - 1].t === candle.t) {
     kline[kline.length - 1] = candle;
@@ -44,7 +54,19 @@ export const formatKline = (data: ExchangeKline, exchange: Exchange): Kline => {
     case Exchange.BINANCE:
       return (data as BinanceKline).map(item => ({
         t: item[0],
+        o: item[1],
         c: item[4],
+        v: item[5],
       }));
   }
 }
+
+export const getUTCDayStart = (): number => {
+  const date = new Date();
+  date.setUTCHours(0);
+  date.setUTCMinutes(0);
+  date.setUTCSeconds(0);
+  date.setUTCMilliseconds(0);
+
+  return date.getTime();
+};

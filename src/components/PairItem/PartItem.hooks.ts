@@ -1,15 +1,22 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BybitKlineItem } from '../../models/bybit.model';
 import { createChart, IChartApi, ISeriesApi, LineData, UTCTimestamp } from 'lightweight-charts';
-import { getColor } from '../../utils/kline';
+import { getChartColor, getColor } from '../../utils/kline';
 import { baseChartConfig, baseLineConfig } from '../../utils/constants';
 import { logWS } from '../../utils/logger';
-import { Kline } from '../../models/kline.model';
+import { Kline, KlineColor } from '../../models/kline.model';
 import { Exchange, KlineInterval } from '../../models/exchange.model';
 
-export const useKlineData = (kline: Kline) => {
+export const useKlineData = () => {
+  const [kline, setKline] = useState<Kline>([]);
+  const [dayOpenPrice, setDayOpenPrice] = useState<number>(0);
+
   const actualPrice = useMemo(() => {
     return kline[kline.length - 1]?.c;
+  }, [kline]);
+
+  const actualVolume = useMemo(() => {
+    return Number(kline[kline.length - 1]?.v);
   }, [kline]);
 
   const actualColor = useMemo(() => {
@@ -27,7 +34,42 @@ export const useKlineData = (kline: Kline) => {
     }));
   }, [kline]);
 
-  return { actualPrice, actualColor, chartData };
+  const percentDiff = useMemo(() => {
+    return (100 - dayOpenPrice / (Number(kline[kline.length - 1]?.c) / 100)) || 0;
+  }, [kline]);
+
+  const percentColor = useMemo(() => {
+    if (percentDiff > 0) {
+      return KlineColor.GREEN;
+    } else if (percentDiff < 0) {
+      return KlineColor.RED;
+    } else {
+      return KlineColor.NORMAL;
+    }
+  }, [percentDiff]);
+
+  const middleVolume = useMemo(() => {
+    return kline.reduce((prev, next) => prev + Number(next.v), 0) / 100;
+  }, [kline]);
+
+  const volumePercentDiff = useMemo(() => {
+    const percentDiff = (100 - middleVolume / (actualVolume / 100));
+    return (percentDiff === -Infinity ? 0 : percentDiff) || 0;
+  }, [kline]);
+
+  return {
+    actualPrice,
+    actualColor,
+    chartData,
+    dayOpenPrice,
+    percentDiff,
+    percentColor,
+    actualVolume,
+    middleVolume,
+    volumePercentDiff,
+    setKline,
+    setDayOpenPrice
+  };
 }
 
 export const useSocket = (
@@ -145,9 +187,10 @@ export const useChart = () => {
     }));
   }
 
-  const updateChart = (chartData: LineData[]) => {
+  const updateChart = (chartData: LineData[], dayOpenPrice: number) => {
     if (!!lineSeries) {
-      const color = getColor(chartData, {
+
+      const color = getChartColor(chartData, dayOpenPrice, {
         green: 'rgba(16, 160, 115, $)',
         red: 'rgba(215, 113, 113, $)',
         normal: 'rgba(25, 40, 55, $)'

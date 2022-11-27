@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { BybitKline } from '../models/bybit.model';
 import { KlineInterval } from '../models/exchange.model';
+import { getUTCDayStart } from '../utils/kline';
 
 export class BybitApi {
   private axios: AxiosInstance;
@@ -11,9 +12,14 @@ export class BybitApi {
     })
   }
 
-  getKline(symbol: string, interval: KlineInterval, limit: number = 20) {
+  getKline(symbol: string, interval: KlineInterval, limit?: number) {
     return this.axios.get<BybitKline>('kline', {
-      params: { symbol, interval, limit }
+      params: {
+        symbol,
+        interval,
+        limit,
+        startTime: getUTCDayStart()
+      }
     });
   }
 }

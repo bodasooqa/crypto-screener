@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import React, { FC, useContext, useEffect } from 'react';
 import './PairItem.scss';
 import { Context } from '../../index';
 import { useFetching } from '../../hooks/useFetching';
@@ -6,7 +6,6 @@ import { useChart, useKlineData, useSocket } from './PartItem.hooks';
 import { formatKline, updateKline } from '../../utils/kline';
 import Loader from '../Loader/Loader';
 import { Exchange, KlineInterval } from '../../models/exchange.model';
-import { Kline } from '../../models/kline.model';
 
 interface PairItemProps {
   exchange: Exchange;
@@ -20,14 +19,26 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
 
   const chartId = `chart-${ exchange }-${ pair }`;
 
-  const [kline, setKline] = useState<Kline>([]);
-
   const [getKline, isLoading, error] = useFetching(async () => {
-    const { data } = await network[exchange].getKline(pair, interval, 20);
-    setKline(formatKline(data, exchange));
+    const { data } = await network[exchange].getKline(pair, interval);
+    const klineData = formatKline(data, exchange);
+    setDayOpenPrice(Number(klineData[0].o));
+    setKline(klineData);
   });
 
-  const { actualPrice, actualColor, chartData } = useKlineData(kline);
+  const {
+    actualPrice,
+    actualColor,
+    chartData,
+    dayOpenPrice,
+    percentDiff,
+    percentColor,
+    actualVolume,
+    middleVolume,
+    volumePercentDiff,
+    setKline,
+    setDayOpenPrice
+  } = useKlineData();
   const { chartInitiated, initChart, updateChart } = useChart();
   const { initSocket, closeConnection } = useSocket(pair, exchange, interval, (candleData) => {
     setKline(oldKline => {
@@ -47,7 +58,7 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
 
   useEffect(() => {
     if (chartInitiated) {
-      updateChart(chartData);
+      updateChart(chartData, dayOpenPrice);
     }
   }, [chartInitiated, chartData]);
 
@@ -66,6 +77,10 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
       </span>
       <span className="pair-item__symbol">
         { pair }
+        <span className={ ['pair-item__percent', `pair-item__percent--${ percentColor }`].join(' ') }>
+          { percentDiff > 0 ? '+' : '' }
+          { percentDiff.toFixed(2) }%
+        </span>
       </span>
 
       { isLoading
@@ -75,6 +90,17 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
         : <div className="pair-item__content">
           <span className={ ['pair-item__actual-price', `pair-item__actual-price--${ actualColor }`].join(' ') }>
             { actualPrice }
+          </span>
+          <span className="pair-item__volume">
+            <b>Vol:</b>
+            { actualVolume.toFixed(2) }
+            <span className='pair-item__volume-percent-diff'>
+              { volumePercentDiff > 0 ? '+' : '' }
+              { volumePercentDiff.toFixed(2) }%
+            </span>
+            <span className='pair-item__middle-volume'>
+              ({ middleVolume.toFixed(2) })
+            </span>
           </span>
           <div id={ chartId } className="pair-item__chart"></div>
         </div> }
