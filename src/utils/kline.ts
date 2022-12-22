@@ -27,9 +27,9 @@ export const getColor = (kline: Kline | LineData[], colorSet: KlineColorSet) => 
 }
 
 export const getChartColor = (chartData: LineData[], dayOpenPrice: number, colorSet: KlineColorSet) => {
-  if (chartData[chartData.length - 1].value > dayOpenPrice) {
+  if (chartData[chartData.length - 1]?.value > dayOpenPrice) {
     return colorSet.green;
-  } else if (chartData[chartData.length - 1].value < dayOpenPrice) {
+  } else if (chartData[chartData.length - 1]?.value < dayOpenPrice) {
     return colorSet.red;
   } else {
     return colorSet.normal;

@@ -70,7 +70,7 @@ export const useKlineData = () => {
     setKline,
     setDayOpenPrice
   };
-}
+};
 
 export const useSocket = (
   pair: string,
@@ -172,7 +172,7 @@ export const useSocket = (
   }, [wsClient]);
 
   return { initSocket, closeConnection };
-}
+};
 
 export const useChart = () => {
   const [chart, setChart] = useState<IChartApi | null>(null);
@@ -221,4 +221,14 @@ export const useChart = () => {
   }, [chart, lineSeries]);
 
   return { chartInitiated, initChart, updateChart };
-}
+};
+
+export const useNotifications = () => {
+  const [notifications, setNotifications] = useState(['', '']);
+
+  const notificationsCount = useMemo(() => {
+    return notifications.length;
+  }, [notifications]);
+
+  return { notifications, notificationsCount };
+};

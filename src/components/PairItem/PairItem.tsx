@@ -1,11 +1,13 @@
-import React, { FC, useContext, useEffect } from 'react';
+import React, { FC, useContext, useEffect, useState } from 'react';
 import './PairItem.scss';
 import { Context } from '../../index';
 import { useFetching } from '../../hooks/useFetching';
-import { useChart, useKlineData, useSocket } from './PartItem.hooks';
+import { useChart, useKlineData, useNotifications, useSocket } from './PartItem.hooks';
 import { formatKline, updateKline } from '../../utils/kline';
 import Loader from '../Loader/Loader';
 import { Exchange, KlineInterval } from '../../models/exchange.model';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGear, faBell } from '@fortawesome/free-solid-svg-icons';
 
 interface PairItemProps {
   exchange: Exchange;
@@ -46,6 +48,9 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
       return [...updatedKline];
     });
   });
+  const { notificationsCount } = useNotifications();
+
+  const [notificationsOpened, setNotificationsOpened] = useState(false);
 
   const initPair = async () => {
     await getKline();
@@ -72,16 +77,39 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
 
   return (
     <div className="pair-item">
-      <span className="pair-item__exchange">
-        { exchange.toUpperCase() }
-      </span>
-      <span className="pair-item__symbol">
-        { pair }
-        <span className={ ['pair-item__percent', `pair-item__percent--${ percentColor }`].join(' ') }>
-          { percentDiff > 0 ? '+' : '' }
-          { percentDiff.toFixed(2) }%
-        </span>
-      </span>
+      <div className="pair-item__header">
+        <div className="pair-item__header__text">
+          <span className="pair-item__exchange">
+            { exchange.toUpperCase() }
+          </span>
+          <span className="pair-item__symbol">
+            { pair }
+            <span className={ ['pair-item__percent', `pair-item__percent--${ percentColor }`].join(' ') }>
+              { percentDiff > 0 && '+' }
+              { percentDiff.toFixed(2) }%
+            </span>
+          </span>
+        </div>
+        <div className="pair-item__header__actions">
+          <button className="pair-item__button">
+            <FontAwesomeIcon icon={ faGear } size="sm" />
+          </button>
+          <button
+            className={ `pair-item__button ${ notificationsOpened && 'pair-item__button--active' }` }
+            onClick={ () => setNotificationsOpened(!notificationsOpened) }
+          >
+            <FontAwesomeIcon icon={ faBell } size="sm" />
+            { !!notificationsCount && <span className="pair-item__badge">{ notificationsCount }</span> }
+          </button>
+        </div>
+      </div>
+
+      { notificationsOpened
+        && <div className="pair-item__popup">
+
+        </div>
+      }
+
 
       { isLoading
         ? <div className="pair-item__loading-state">
@@ -94,16 +122,17 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
           <span className="pair-item__volume">
             <b>Vol:</b>
             { actualVolume.toFixed(2) }
-            <span className='pair-item__volume-percent-diff'>
+            <span className="pair-item__volume-percent-diff">
               { volumePercentDiff > 0 ? '+' : '' }
               { volumePercentDiff.toFixed(2) }%
             </span>
-            <span className='pair-item__middle-volume'>
+            <span className="pair-item__middle-volume">
               ({ middleVolume.toFixed(2) })
             </span>
           </span>
           <div id={ chartId } className="pair-item__chart"></div>
-        </div> }
+        </div>
+      }
     </div>
   );
 };
