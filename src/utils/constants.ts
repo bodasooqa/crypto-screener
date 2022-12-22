@@ -1,4 +1,5 @@
 import { ChartOptions, DeepPartial, LastPriceAnimationMode } from 'lightweight-charts';
+import { KlineInterval } from '../models/exchange.model';
 
 export const baseChartConfig: DeepPartial<ChartOptions> = {
   height: 100,
@@ -31,3 +32,5 @@ export const baseLineConfig = {
   priceLineVisible: false,
   lastPriceAnimation: LastPriceAnimationMode.OnDataUpdate
 };
+
+export const intervals: KlineInterval[] = ['1m', '5m', '15m', '30m', '1h'];

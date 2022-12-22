@@ -1,4 +1,4 @@
-import { BybitKline, BybitKlineItem } from '../models/bybit.model';
+import { BybitKline } from '../models/bybit.model';
 import { KlineColorSet, Kline, ExchangeKline, KlineItem } from '../models/kline.model';
 import { LineData } from 'lightweight-charts';
 import { Exchange } from '../models/exchange.model';
