@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { BybitKlineItem } from '../../models/bybit.model';
 import { createChart, IChartApi, ISeriesApi, LineData, UTCTimestamp } from 'lightweight-charts';
 import { getChartColor, getColor } from '../../utils/kline';
@@ -225,10 +225,25 @@ export const useChart = () => {
 
 export const useNotifications = () => {
   const [notifications, setNotifications] = useState(['', '']);
+  const [notificationsOpened, setNotificationsOpened] = useState(false);
+
+  const notificationsOverlayRef = useRef(null);
 
   const notificationsCount = useMemo(() => {
     return notifications.length;
   }, [notifications]);
 
-  return { notifications, notificationsCount };
+  return {
+    notifications,
+    notificationsOpened,
+    notificationsCount,
+    notificationsOverlayRef,
+    setNotificationsOpened
+  };
 };
+
+export const useSettings = () => {
+  const settingsButtonRef = useRef(null);
+
+  return { settingsButtonRef }
+}

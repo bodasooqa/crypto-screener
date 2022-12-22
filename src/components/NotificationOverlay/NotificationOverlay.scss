@@ -1,0 +1,14 @@
+@import "src/styles/variables";
+
+.notification-overlay {
+  padding: 16px;
+  position: absolute;
+  background: white;
+  width: calc(100% - 32px);
+  height: calc(100% - 32px);
+  top: 0;
+  left: 0;
+  z-index: 2;
+  border-bottom: 1px solid $gray-color;
+  box-shadow: 0 10px 15px -20px;
+}

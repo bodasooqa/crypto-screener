@@ -1,5 +1,6 @@
 @import "src/styles/variables";
 @import "src/styles/mixins";
+@import "src/styles/animations";
 
 .pair-item {
   $pair-item: &;
@@ -148,16 +149,6 @@
       background: black;
       color: white;
     }
-  }
-
-  &__popup {
-    position: absolute;
-    background: white;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: 2;
   }
 
   &__badge {

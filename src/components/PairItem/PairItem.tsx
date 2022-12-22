@@ -1,13 +1,15 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import React, { FC, useContext, useEffect } from 'react';
 import './PairItem.scss';
 import { Context } from '../../index';
 import { useFetching } from '../../hooks/useFetching';
-import { useChart, useKlineData, useNotifications, useSocket } from './PartItem.hooks';
+import { useChart, useKlineData, useNotifications, useSettings, useSocket } from './PartItem.hooks';
 import { formatKline, updateKline } from '../../utils/kline';
 import Loader from '../Loader/Loader';
 import { Exchange, KlineInterval } from '../../models/exchange.model';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear, faBell } from '@fortawesome/free-solid-svg-icons';
+import { CSSTransition } from 'react-transition-group';
+import NotificationOverlay from '../NotificationOverlay/NotificationOverlay';
 
 interface PairItemProps {
   exchange: Exchange;
@@ -48,9 +50,14 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
       return [...updatedKline];
     });
   });
-  const { notificationsCount } = useNotifications();
-
-  const [notificationsOpened, setNotificationsOpened] = useState(false);
+  const {
+    notifications,
+    notificationsOpened,
+    notificationsCount,
+    notificationsOverlayRef,
+    setNotificationsOpened
+  } = useNotifications();
+  const { settingsButtonRef } = useSettings();
 
   const initPair = async () => {
     await getKline();
@@ -91,9 +98,17 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
           </span>
         </div>
         <div className="pair-item__header__actions">
-          <button className="pair-item__button">
-            <FontAwesomeIcon icon={ faGear } size="sm" />
-          </button>
+          <CSSTransition
+            in={ !notificationsOpened }
+            nodeRef={ settingsButtonRef }
+            timeout={ 300 }
+            classNames="fade"
+            unmountOnExit
+          >
+            <button ref={ settingsButtonRef } className="pair-item__button">
+              <FontAwesomeIcon icon={ faGear } size="sm" />
+            </button>
+          </CSSTransition>
           <button
             className={ `pair-item__button ${ notificationsOpened && 'pair-item__button--active' }` }
             onClick={ () => setNotificationsOpened(!notificationsOpened) }
@@ -104,12 +119,15 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
         </div>
       </div>
 
-      { notificationsOpened
-        && <div className="pair-item__popup">
-
-        </div>
-      }
-
+      <CSSTransition
+        in={ notificationsOpened }
+        nodeRef={ notificationsOverlayRef }
+        timeout={ 500 }
+        classNames="overlay-up"
+        unmountOnExit
+      >
+       <NotificationOverlay ref={ notificationsOverlayRef }></NotificationOverlay>
+      </CSSTransition>
 
       { isLoading
         ? <div className="pair-item__loading-state">
