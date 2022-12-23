@@ -27,15 +27,16 @@
     display: flex;
     justify-content: space-between;
 
-    &__header {
+    &__text {
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
     }
 
     &__actions {
       display: flex;
       gap: 8px;
-      z-index: 3;
+      z-index: 4;
     }
   }
 
@@ -137,12 +138,22 @@
     height: 22px;
     width: 22px;
 
+    $disabled-shadow: rgba($main-color, .5) 0 0 8px -4px, rgba(white, .8) 0 0 8px -4px;
+
     &:hover {
       box-shadow: rgba($main-color, .5) 3px 1px 8px -1px, rgba(white, .8) -3px -1px 8px -1px;
+
+      &:disabled {
+        box-shadow: $disabled-shadow;
+      }
 
       #{ $pair-item }__badge {
         transform: scale(1.1);
       }
+    }
+
+    &:disabled {
+      box-shadow: $disabled-shadow;
     }
 
     &--active {

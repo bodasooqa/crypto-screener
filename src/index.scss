@@ -9,5 +9,13 @@ html, body {
 
 button, input {
   font-family: $main-font;
+  font-size: 14px;
+}
+
+button {
   cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 }

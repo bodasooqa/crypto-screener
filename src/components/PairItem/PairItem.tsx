@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear, faBell } from '@fortawesome/free-solid-svg-icons';
 import { CSSTransition } from 'react-transition-group';
 import NotificationOverlay from '../NotificationOverlay/NotificationOverlay';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 interface PairItemProps {
   exchange: Exchange;
@@ -19,7 +20,10 @@ interface PairItemProps {
 }
 
 const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
-  const { network } = useContext(Context);
+  const context = useContext(Context);
+  const { network, firebase } = context
+  const { auth } = firebase;
+  const [globalUser] = useAuthState(auth);
 
   const chartId = `chart-${ exchange }-${ pair }`;
 
@@ -105,12 +109,17 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
             classNames="fade"
             unmountOnExit
           >
-            <button ref={ settingsButtonRef } className="pair-item__button">
+            <button
+              ref={ settingsButtonRef }
+              className="pair-item__button"
+              disabled={ !globalUser }
+            >
               <FontAwesomeIcon icon={ faGear } size="sm" />
             </button>
           </CSSTransition>
           <button
             className={ `pair-item__button ${ notificationsOpened && 'pair-item__button--active' }` }
+            disabled={ !globalUser }
             onClick={ () => setNotificationsOpened(!notificationsOpened) }
           >
             <FontAwesomeIcon icon={ faBell } size="sm" />
@@ -126,7 +135,11 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
         classNames="overlay-up"
         unmountOnExit
       >
-       <NotificationOverlay ref={ notificationsOverlayRef }></NotificationOverlay>
+       <NotificationOverlay
+         ref={ notificationsOverlayRef }
+         exchange={ exchange }
+         symbol={ pair }
+       />
       </CSSTransition>
 
       { isLoading

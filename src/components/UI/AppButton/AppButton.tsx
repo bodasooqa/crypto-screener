@@ -3,13 +3,20 @@ import './AppButton.scss';
 
 interface AppButtonProps {
   children?: string;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
   onClick?: () => void;
 }
 
-const AppButton: FC<AppButtonProps> = ({ children, onClick }) => {
+const AppButton: FC<AppButtonProps> = ({ children, type = 'button', disabled, onClick }) => {
   return (
-    <button className='app-button' onClick={onClick}>
-      {children}
+    <button
+      className='app-button'
+      type={ type }
+      disabled={ disabled }
+      onClick={onClick}
+    >
+      { children }
     </button>
   );
 };
