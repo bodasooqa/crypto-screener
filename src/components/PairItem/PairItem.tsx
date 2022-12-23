@@ -11,6 +11,7 @@ import { faGear, faBell } from '@fortawesome/free-solid-svg-icons';
 import { CSSTransition } from 'react-transition-group';
 import NotificationOverlay from '../NotificationOverlay/NotificationOverlay';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import CardButton from '../UI/CardButton/CardButton';
 
 interface PairItemProps {
   exchange: Exchange;
@@ -21,7 +22,7 @@ interface PairItemProps {
 
 const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
   const context = useContext(Context);
-  const { network, firebase } = context
+  const { network, firebase } = context;
   const { auth } = firebase;
   const [globalUser] = useAuthState(auth);
 
@@ -109,22 +110,23 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
             classNames="fade"
             unmountOnExit
           >
-            <button
+            <CardButton
               ref={ settingsButtonRef }
-              className="pair-item__button"
               disabled={ !globalUser }
             >
               <FontAwesomeIcon icon={ faGear } size="sm" />
-            </button>
+            </CardButton>
           </CSSTransition>
-          <button
-            className={ `pair-item__button ${ notificationsOpened && 'pair-item__button--active' }` }
+          <CardButton
+            type='button'
             disabled={ !globalUser }
+            isActive={ notificationsOpened }
+            badge={ notificationsCount }
             onClick={ () => setNotificationsOpened(!notificationsOpened) }
           >
             <FontAwesomeIcon icon={ faBell } size="sm" />
-            { !!notificationsCount && <span className="pair-item__badge">{ notificationsCount }</span> }
-          </button>
+          </CardButton>
+
         </div>
       </div>
 

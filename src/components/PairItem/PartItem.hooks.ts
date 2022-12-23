@@ -6,7 +6,7 @@ import { baseChartConfig, baseLineConfig } from '../../utils/constants';
 import { logWS } from '../../utils/logger';
 import { Kline, KlineColor } from '../../models/kline.model';
 import { Exchange, KlineInterval } from '../../models/exchange.model';
-import { INotification } from '../../models/notification.model';
+import { useAppSelector } from '../../hooks';
 
 export const useKlineData = () => {
   const [kline, setKline] = useState<Kline>([]);
@@ -225,7 +225,8 @@ export const useChart = () => {
 };
 
 export const useNotifications = () => {
-  const [notifications, setNotifications] = useState<INotification[]>([]);
+  const notifications = useAppSelector((state) => state.notifications.value);
+  // const [notifications, setNotifications] = useState<INotification[]>([]);
   const [notificationsOpened, setNotificationsOpened] = useState(false);
 
   const notificationsOverlayRef = useRef(null);

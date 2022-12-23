@@ -4,6 +4,8 @@ import AppInput from '../UI/AppInput/AppInput';
 import AppButton from '../UI/AppButton/AppButton';
 import { INotification, NotificationType, NotificationWorkType } from '../../models/notification.model';
 import { Exchange } from '../../models/exchange.model';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { sendNotification } from '../../features/notifications/actionCreators';
 
 interface NotificationOverlayProps {
   exchange: Exchange;
@@ -11,6 +13,9 @@ interface NotificationOverlayProps {
 }
 
 const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlayProps>(({ symbol, exchange }, ref) => {
+  const dispatch = useAppDispatch();
+  const notifications = useAppSelector(state => state.notifications.value);
+
   const [price, setPrice] = useState('');
 
   const isButtonDisabled = useMemo(() => {
@@ -33,15 +38,15 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
       price: Number(price),
       symbol,
       exchange
-    }
+    };
 
-    console.log(newNotification);
+    dispatch(sendNotification(newNotification));
   }
 
   return (
     <div className="notification-overlay" ref={ ref }>
       <div className="notification-overlay__header">
-        <h4>Notifications</h4>
+        <h4>Notifications <b>{ symbol }</b></h4>
 
         <form
           className="notification-overlay__header__form"
@@ -59,7 +64,20 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
         </form>
       </div>
       <div className="notification-overlay__content">
-        <div className="notification-overlay__item"></div>
+        { notifications.map((notification, idx) =>
+          <div
+            className='notification-overlay__item'
+            key={ `notification-${idx}` }
+          >
+            <span className='notification-overlay__item__title'>
+              <b>{ notification.type } </b>
+              ({ notification.workType })
+            </span>
+            <div className='notification-overlay__item__price'>
+              { notification.price }
+            </div>
+          </div>
+        ) }
       </div>
     </div>
   );

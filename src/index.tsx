@@ -4,6 +4,8 @@ import './index.scss';
 import App from './App';
 import { FirebaseService } from './services/firebase.service';
 import { NetworkService } from './services/network.service';
+import { Provider } from 'react-redux';
+import store from './store';
 
 interface GlobalContext {
   firebase: FirebaseService;
@@ -23,6 +25,8 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <Context.Provider value={ contextDefaultValue }>
-    <App />
+    <Provider store={ store }>
+      <App />
+    </Provider>
   </Context.Provider>
 );
