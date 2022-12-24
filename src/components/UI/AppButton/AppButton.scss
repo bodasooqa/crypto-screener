@@ -1,6 +1,9 @@
 @import "../../../styles/variables";
 
 .app-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   background: $primary-color;
   outline: none;

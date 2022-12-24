@@ -1,21 +1,45 @@
 @import "src/styles/variables";
 
 .loader {
+  $loader: &;
   display: inline-block;
   position: relative;
-  width: 40px;
-  height: 40px;
+
+  $sizes: ("xs": 10px, "sm": 16px, "md": 30px, "lg": 40px);
+
+  @each $size, $pixels in $sizes {
+    &#{ $loader }--#{ $size } {
+      width: $pixels;
+      height: $pixels;
+
+      div {
+        width: $pixels;
+        height: $pixels;
+        border: $pixels / 10 solid lighten($main-color, 50);
+      }
+    }
+  }
+
+  $colors: (main, white, black);
+
+  @each $color in $colors {
+    &#{ $loader }--#{ $color } {
+      div {
+        @if $color == main {
+          border-color: lighten($main-color, 50) transparent transparent transparent;
+        } @else {
+          border-color: $color transparent transparent transparent;
+        }
+      }
+    }
+  }
 
   div {
     box-sizing: border-box;
     display: block;
     position: absolute;
-    width: 40px;
-    height: 40px;
-    border: 4px solid lighten($main-color, 50);
     border-radius: 50%;
     animation: loader 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-    border-color: lighten($main-color, 50) transparent transparent transparent;
 
     &:nth-child(1) {
       animation-delay: -0.45s;

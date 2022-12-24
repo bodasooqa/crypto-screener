@@ -32,10 +32,19 @@
     }
   }
 
+  &__submit-btn {
+    min-width: 50px;
+
+    &--loading {
+      padding: 0 12px;
+    }
+  }
+
   &__content {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    overflow-y: scroll;
   }
 
   &__item {
@@ -47,10 +56,10 @@
     padding-bottom: 8px;
 
     &__title {
-      text-transform: capitalize;
-      font-weight: 200;
+      font-weight: 300;
 
       > b {
+        text-transform: capitalize;
         font-weight: 600;
       }
     }

@@ -224,22 +224,29 @@ export const useChart = () => {
   return { chartInitiated, initChart, updateChart };
 };
 
-export const useNotifications = () => {
-  const notifications = useAppSelector((state) => state.notifications.value);
-  // const [notifications, setNotifications] = useState<INotification[]>([]);
+export const useNotifications = (pair: string, exchange: Exchange) => {
+  const symbolKey = `${ exchange }-${ pair }`;
+
+  const notifications = useAppSelector((state) => state.notifications.value[symbolKey]);
+  const isLoading = useAppSelector((state) => state.notifications.isLoading);
+
   const [notificationsOpened, setNotificationsOpened] = useState(false);
 
   const notificationsOverlayRef = useRef(null);
 
   const notificationsCount = useMemo(() => {
-    return notifications.length;
+    return notifications?.length || 0;
   }, [notifications]);
 
+  const isNotificationsLoading = useMemo(() => {
+    return isLoading.all || isLoading.pairs.includes(symbolKey);
+  }, [isLoading]);
+
   return {
-    notifications,
     notificationsOpened,
     notificationsCount,
     notificationsOverlayRef,
+    isNotificationsLoading,
     setNotificationsOpened
   };
 };

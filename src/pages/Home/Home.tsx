@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Home.scss';
 import PairItem from '../../components/PairItem/PairItem';
 import { Exchange, KlineInterval } from '../../models/exchange.model';
+import { useAppDispatch } from '../../hooks';
+import { getNotifications } from '../../features/notifications/actionCreators';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../../config/firebase';
 
 const Home = () => {
+  const [globalUser] = useAuthState(auth);
+
+  const dispatch = useAppDispatch();
+
   const [pairs] = useState([
     { exchange: Exchange.BINANCE, symbol: 'BTCUSDT', interval: '15m' as KlineInterval },
     { exchange: Exchange.BINANCE, symbol: 'ETHUSDT', interval: '15m' as KlineInterval },
@@ -18,6 +26,12 @@ const Home = () => {
     // { exchange: Exchange.BYBIT, symbol: 'ATOMUSDT', interval: '15m' as KlineInterval },
     // { exchange: Exchange.BYBIT, symbol: 'XRPUSDT', interval: '15m' as KlineInterval },
   ]);
+
+  useEffect(() => {
+    if (!!globalUser) {
+      dispatch(getNotifications());
+    }
+  }, [globalUser]);
 
   return (
     <div className="home">

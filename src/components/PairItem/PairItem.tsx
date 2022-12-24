@@ -12,6 +12,7 @@ import { CSSTransition } from 'react-transition-group';
 import NotificationOverlay from '../NotificationOverlay/NotificationOverlay';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import CardButton from '../UI/CardButton/CardButton';
+import { auth } from '../../config/firebase';
 
 interface PairItemProps {
   exchange: Exchange;
@@ -22,13 +23,12 @@ interface PairItemProps {
 
 const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
   const context = useContext(Context);
-  const { network, firebase } = context;
-  const { auth } = firebase;
+  const { network } = context;
   const [globalUser] = useAuthState(auth);
 
   const chartId = `chart-${ exchange }-${ pair }`;
 
-  const [getKline, isLoading, error] = useFetching(async () => {
+  const [getKline, isKlineLoading, error] = useFetching(async () => {
     const { data } = await network[exchange].getKline(pair, interval);
     const klineData = formatKline(data, exchange);
     setDayOpenPrice(Number(klineData[0].o));
@@ -56,12 +56,12 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
     });
   });
   const {
-    notifications,
     notificationsOpened,
     notificationsCount,
     notificationsOverlayRef,
+    isNotificationsLoading,
     setNotificationsOpened
-  } = useNotifications();
+  } = useNotifications(pair, exchange);
   const { settingsButtonRef } = useSettings();
 
   const initPair = async () => {
@@ -124,7 +124,10 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
             badge={ notificationsCount }
             onClick={ () => setNotificationsOpened(!notificationsOpened) }
           >
-            <FontAwesomeIcon icon={ faBell } size="sm" />
+            { !!globalUser && !notificationsOpened && isNotificationsLoading
+              ? <Loader size='xs' />
+              : <FontAwesomeIcon icon={ faBell } size="sm" /> }
+
           </CardButton>
 
         </div>
@@ -141,12 +144,13 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
          ref={ notificationsOverlayRef }
          exchange={ exchange }
          symbol={ pair }
+         momentPrice={ actualPrice }
        />
       </CSSTransition>
 
-      { isLoading
+      { isKlineLoading
         ? <div className="pair-item__loading-state">
-          <Loader />
+          <Loader size='lg' />
         </div>
         : <div className="pair-item__content">
           <span className={ ['pair-item__actual-price', `pair-item__actual-price--${ actualColor }`].join(' ') }>

@@ -1,30 +1,71 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { INotification } from '../../models/notification.model';
-import { sendNotification } from './actionCreators';
+import { INotificationsCollection, INotificationsLoading } from '../../models/notification.model';
+import { addNotification, getNotifications } from './actionCreators';
 
 interface INotificationsState {
-  value: INotification[]
+  value: INotificationsCollection;
+  isLoading: INotificationsLoading;
+}
+
+const initialIsLoading: INotificationsLoading = {
+  all: false,
+  pairs: []
 }
 
 const initialState: INotificationsState = {
-  value: []
+  value: {},
+  isLoading: { ...initialIsLoading }
 }
 
 export const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
   reducers: {
-    setNotifications: (state, action: PayloadAction<INotification[]>) => {
+    setNotifications: (state, action: PayloadAction<INotificationsCollection>) => {
       state.value = action.payload;
     },
   },
-  extraReducers: {
-    [sendNotification.fulfilled.type]: (state, action: PayloadAction<INotification>) => {
-      state.value.push(action.payload);
-    },
-    [sendNotification.rejected.type]: (_, action: PayloadAction<string>) => {
-      console.log(action.payload);
-    }
+  extraReducers: (builder) => {
+    builder.addCase(addNotification.fulfilled, (state, { payload }) => {
+      if (!!payload) {
+        state.value[payload.key]
+          ? state.value[payload.key].push(payload.notification)
+          : state.value[payload.key] = [payload.notification];
+      }
+
+      state.isLoading = { ...initialIsLoading };
+    });
+
+    builder.addCase(addNotification.pending, (state, { meta }) => {
+      if (!!meta) {
+        state.isLoading = {
+          ...initialIsLoading,
+          pairs: [
+            ...state.isLoading.pairs,
+            `${ meta.arg.exchange }-${ meta.arg.symbol }`
+          ]
+        }
+      }
+    });
+
+    builder.addCase(addNotification.rejected, (_, { payload }) => {
+      console.log(payload);
+    });
+
+    builder.addCase(getNotifications.fulfilled, (state, { payload }) => {
+      if (!!payload) {
+        state.value = payload;
+      }
+
+      state.isLoading = { ...initialIsLoading };
+    });
+
+    builder.addCase(getNotifications.pending, (state) => {
+      state.isLoading = {
+        ...initialIsLoading,
+        all: true
+      };
+    });
   }
 });
 

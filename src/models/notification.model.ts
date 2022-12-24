@@ -16,3 +16,17 @@ export interface INotification {
   symbol: string;
   exchange: Exchange;
 }
+
+export interface INotificationsCollection {
+  [key: string]: INotification[]
+}
+
+export interface INotificationSet {
+  key: string;
+  notification: INotification;
+}
+
+export interface INotificationsLoading {
+  all: boolean;
+  pairs: string[];
+}
