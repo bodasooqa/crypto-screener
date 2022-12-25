@@ -3,7 +3,7 @@ import { INotificationsCollection, INotificationsLoading } from '../../models/no
 import { addNotification, getNotifications } from './actionCreators';
 
 interface INotificationsState {
-  value: INotificationsCollection;
+  value: INotificationsCollection | null;
   isLoading: INotificationsLoading;
 }
 
@@ -21,16 +21,20 @@ export const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
   reducers: {
-    setNotifications: (state, action: PayloadAction<INotificationsCollection>) => {
+    setNotifications: (state, action: PayloadAction<INotificationsCollection | null>) => {
       state.value = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder.addCase(addNotification.fulfilled, (state, { payload }) => {
-      if (!!payload) {
+      if (!!payload && !!state.value) {
         state.value[payload.key]
           ? state.value[payload.key].push(payload.notification)
           : state.value[payload.key] = [payload.notification];
+      } else {
+        state.value = {
+          [payload.key]: [payload.notification]
+        }
       }
 
       state.isLoading = { ...initialIsLoading };
@@ -48,8 +52,9 @@ export const notificationsSlice = createSlice({
       }
     });
 
-    builder.addCase(addNotification.rejected, (_, { payload }) => {
+    builder.addCase(addNotification.rejected, (state, { payload }) => {
       console.log(payload);
+      state.isLoading = { ...initialIsLoading, };
     });
 
     builder.addCase(getNotifications.fulfilled, (state, { payload }) => {
@@ -65,6 +70,11 @@ export const notificationsSlice = createSlice({
         ...initialIsLoading,
         all: true
       };
+    });
+
+    builder.addCase(getNotifications.rejected, (state, { payload }) => {
+      console.log(payload);
+      state.isLoading = { ...initialIsLoading, };
     });
   }
 });

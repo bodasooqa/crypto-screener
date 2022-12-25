@@ -227,7 +227,7 @@ export const useChart = () => {
 export const useNotifications = (pair: string, exchange: Exchange) => {
   const symbolKey = `${ exchange }-${ pair }`;
 
-  const notifications = useAppSelector((state) => state.notifications.value[symbolKey]);
+  const notifications = useAppSelector((state) => !!state.notifications.value && state.notifications.value[symbolKey]);
   const isLoading = useAppSelector((state) => state.notifications.isLoading);
 
   const [notificationsOpened, setNotificationsOpened] = useState(false);
@@ -235,7 +235,7 @@ export const useNotifications = (pair: string, exchange: Exchange) => {
   const notificationsOverlayRef = useRef(null);
 
   const notificationsCount = useMemo(() => {
-    return notifications?.length || 0;
+    return (notifications || [])?.length || 0;
   }, [notifications]);
 
   const isNotificationsLoading = useMemo(() => {

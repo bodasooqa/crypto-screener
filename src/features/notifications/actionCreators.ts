@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { INotification, INotificationsCollection, INotificationSet } from '../../models/notification.model';
+import { INotification, INotificationsCollection } from '../../models/notification.model';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { app, db } from '../../config/firebase';
 import { getAuth } from 'firebase/auth';
@@ -11,32 +11,34 @@ export const addNotification = createAsyncThunk(
       const { currentUser } = getAuth(app);
 
       if (!!currentUser) {
-        return new Promise<INotificationSet>(async resolve => {
-          const itemPath = `${ notification.exchange }-${ notification.symbol }`;
+        const itemPath = `${ notification.exchange }-${ notification.symbol }`;
 
-          const userNotificationsRef = doc(db, `notifications/${ currentUser.uid }`);
-          const docSnap = await getDoc<INotificationsCollection>(userNotificationsRef);
+        const userNotificationsRef = doc(db, `notifications/${ currentUser.uid }`);
+        const docSnap = await getDoc<INotificationsCollection>(userNotificationsRef);
 
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            await setDoc(userNotificationsRef, {
-              [itemPath]: !!data[itemPath]?.length
-                ? [...data[itemPath], notification]
-                : [notification]
-            }, { merge: true });
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          await setDoc(userNotificationsRef, {
+            [itemPath]: !!data[itemPath]?.length
+              ? [...data[itemPath], notification]
+              : [notification]
+          }, { merge: true });
+        } else {
+          await setDoc(userNotificationsRef, {
+            [itemPath]: [notification]
+          });
+        }
 
-            resolve({
-              key: itemPath,
-              notification
-            });
-          }
+        return thunkAPI.fulfillWithValue({
+          key: itemPath,
+          notification
         });
       } else {
-        thunkAPI.rejectWithValue('Unauthorized');
+        return thunkAPI.rejectWithValue('Unauthorized');
       }
-    } catch (e) {
-      console.log('e', e);
-      thunkAPI.rejectWithValue('Error adding document:');
+    } catch (err) {
+      console.log(err);
+      return thunkAPI.rejectWithValue(`Error adding document: ${ err }`);
     }
   }
 );
@@ -44,23 +46,25 @@ export const addNotification = createAsyncThunk(
 export const getNotifications = createAsyncThunk(
   'notifications/getNotifications',
   async (_, thunkAPI) => {
-    const { currentUser } = getAuth(app);
+    try {
+      const { currentUser } = getAuth(app);
 
-    if (!!currentUser) {
-      try {
-        return new Promise<INotificationsCollection>(async resolve => {
-          const userNotificationsRef = doc(db, `notifications/${ currentUser.uid }`);
-          const docSnap = await getDoc<INotificationsCollection>(userNotificationsRef);
+      if (!!currentUser) {
+        const userNotificationsRef = doc(db, `notifications/${ currentUser.uid }`);
+        const docSnap = await getDoc<INotificationsCollection>(userNotificationsRef);
 
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            resolve(data);
-          }
-        });
-      } catch (e) {
-        console.log(e)
-        thunkAPI.rejectWithValue('Не удалось');
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          return thunkAPI.fulfillWithValue(data);
+        } else {
+          return thunkAPI.rejectWithValue('No data');
+        }
+      } else {
+        return thunkAPI.rejectWithValue('Unauthorized');
       }
+    } catch (err) {
+      console.log(err)
+      return thunkAPI.rejectWithValue(`Error getting documents: ${ err }`);
     }
   }
 )

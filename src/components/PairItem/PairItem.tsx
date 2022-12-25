@@ -80,6 +80,12 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
   }, [chartInitiated, chartData]);
 
   useEffect(() => {
+    if (!globalUser) {
+      setNotificationsOpened(false);
+    }
+  }, [globalUser]);
+
+  useEffect(() => {
     initPair();
 
     return () => {
@@ -118,14 +124,13 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
             </CardButton>
           </CSSTransition>
           <CardButton
-            type='button'
             disabled={ !globalUser }
             isActive={ notificationsOpened }
             badge={ notificationsCount }
             onClick={ () => setNotificationsOpened(!notificationsOpened) }
           >
             { !!globalUser && !notificationsOpened && isNotificationsLoading
-              ? <Loader size='xs' />
+              ? <Loader size='xs' color='black' />
               : <FontAwesomeIcon icon={ faBell } size="sm" /> }
 
           </CardButton>

@@ -7,6 +7,9 @@ import { Exchange } from '../../models/exchange.model';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { addNotification } from '../../features/notifications/actionCreators';
 import Loader from '../Loader/Loader';
+import CardButton from '../UI/CardButton/CardButton';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 interface NotificationOverlayProps {
   exchange: Exchange;
@@ -22,7 +25,7 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
   const symbolKey = `${ exchange }-${ symbol }`;
 
   const dispatch = useAppDispatch();
-  const notifications = useAppSelector(state => state.notifications.value[symbolKey]) || [];
+  const notifications = useAppSelector(state => !!state.notifications.value && state.notifications.value[symbolKey]) || [];
   const isLoading = useAppSelector(state => state.notifications.isLoading);
 
   const [price, setPrice] = useState('');
@@ -98,7 +101,7 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
             disabled={ isButtonDisabled }
           >
             { isNotificationsLoading
-              ? <Loader size="sm" color='black' />
+              ? <Loader size="sm" color="black" />
               : 'Add' }
           </AppButton>
         </form>
@@ -115,6 +118,10 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
             </span>
             <div className="notification-overlay__item__price">
               { notification.price }
+
+              <CardButton>
+                <FontAwesomeIcon icon={ faXmark } />
+              </CardButton>
             </div>
           </div>
         ) }

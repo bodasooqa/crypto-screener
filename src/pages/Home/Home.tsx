@@ -6,6 +6,7 @@ import { useAppDispatch } from '../../hooks';
 import { getNotifications } from '../../features/notifications/actionCreators';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../config/firebase';
+import { setNotifications } from '../../features/notifications/notificationsSlice';
 
 const Home = () => {
   const [globalUser] = useAuthState(auth);
@@ -30,6 +31,8 @@ const Home = () => {
   useEffect(() => {
     if (!!globalUser) {
       dispatch(getNotifications());
+    } else {
+      dispatch(setNotifications(null));
     }
   }, [globalUser]);
 
