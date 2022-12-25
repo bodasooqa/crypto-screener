@@ -5,7 +5,7 @@ import AppButton from '../UI/AppButton/AppButton';
 import { INotification, NotificationType, NotificationWorkType } from '../../models/notification.model';
 import { Exchange } from '../../models/exchange.model';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { addNotification } from '../../features/notifications/actionCreators';
+import { addNotification, removeNotification } from '../../features/notifications/actionCreators';
 import Loader from '../Loader/Loader';
 import CardButton from '../UI/CardButton/CardButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -65,6 +65,10 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
     setPrice(String(Number(momentPrice)));
   }
 
+  const onRemove = (notification: INotification) => {
+    dispatch(removeNotification(notification));
+  }
+
   useEffect(() => {
     if (!isNotificationsLoading) {
       setMomentPrice();
@@ -119,7 +123,7 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
             <div className="notification-overlay__item__price">
               { notification.price }
 
-              <CardButton>
+              <CardButton onClick={ () => onRemove(notification) }>
                 <FontAwesomeIcon icon={ faXmark } />
               </CardButton>
             </div>

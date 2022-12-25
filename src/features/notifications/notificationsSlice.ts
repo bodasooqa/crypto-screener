@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { INotificationsCollection, INotificationsLoading } from '../../models/notification.model';
-import { addNotification, getNotifications } from './actionCreators';
+import { addNotification, getNotifications, removeNotification } from './actionCreators';
 
 interface INotificationsState {
   value: INotificationsCollection | null;
@@ -27,13 +27,16 @@ export const notificationsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(addNotification.fulfilled, (state, { payload }) => {
-      if (!!payload && !!state.value) {
-        state.value[payload.key]
-          ? state.value[payload.key].push(payload.notification)
-          : state.value[payload.key] = [payload.notification];
-      } else {
-        state.value = {
-          [payload.key]: [payload.notification]
+      const key = `${ payload.exchange }-${ payload.symbol }`
+      if (!!payload) {
+        if (!!state.value) {
+          state.value[key]
+            ? state.value[key].push(payload)
+            : state.value[key] = [payload];
+        } else {
+          state.value = {
+            [key]: [payload]
+          }
         }
       }
 
@@ -75,6 +78,29 @@ export const notificationsSlice = createSlice({
     builder.addCase(getNotifications.rejected, (state, { payload }) => {
       console.log(payload);
       state.isLoading = { ...initialIsLoading, };
+    });
+
+    builder.addCase(removeNotification.fulfilled, (state, { payload }) => {
+      const key = `${ payload.exchange }-${ payload.symbol }`;
+
+      if (!!payload && !!state.value) {
+        const idx = state.value[key].findIndex(item => item.price === payload.price);
+        state.value[key].splice(idx, 1);
+      }
+
+      state.isLoading = { ...initialIsLoading, };
+    });
+
+    builder.addCase(removeNotification.pending, (state, { meta }) => {
+      if (!!meta) {
+        state.isLoading = {
+          ...initialIsLoading,
+          pairs: [
+            ...state.isLoading.pairs,
+            `${ meta.arg.exchange }-${ meta.arg.symbol }`
+          ]
+        }
+      }
     });
   }
 });
