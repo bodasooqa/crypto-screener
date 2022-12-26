@@ -6,8 +6,6 @@ import { baseChartConfig, baseLineConfig } from '../../utils/constants';
 import { logWS } from '../../utils/logger';
 import { Kline, KlineColor } from '../../models/kline.model';
 import { Exchange, KlineInterval } from '../../models/exchange.model';
-import { useAppSelector } from '../../hooks';
-import { INotification } from '../../models/notification.model';
 
 export const useKlineData = () => {
   const [kline, setKline] = useState<Kline>([]);
