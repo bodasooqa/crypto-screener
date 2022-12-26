@@ -13,6 +13,7 @@ export interface INotification {
   type: NotificationType;
   workType: NotificationWorkType;
   price: number;
+  momentPrice: number;
   symbol: string;
   exchange: Exchange;
 }

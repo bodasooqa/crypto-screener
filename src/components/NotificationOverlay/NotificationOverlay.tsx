@@ -52,6 +52,7 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
       type: NotificationType.CROSS,
       workType: NotificationWorkType.ONCE,
       price: Number(price),
+      momentPrice: Number(momentPrice),
       symbol,
       exchange
     };

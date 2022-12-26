@@ -3,6 +3,7 @@ import { INotification, INotificationsCollection } from '../../models/notificati
 import { arrayRemove, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { app, db } from '../../config/firebase';
 import { getAuth } from 'firebase/auth';
+import { requestPermission } from '../../utils/notifications';
 
 export const addNotification = createAsyncThunk(
   'notifications/addNotification',
@@ -29,6 +30,8 @@ export const addNotification = createAsyncThunk(
           });
         }
 
+        await requestPermission();
+
         return thunkAPI.fulfillWithValue(notification);
       } else {
         return thunkAPI.rejectWithValue('Unauthorized');
@@ -51,6 +54,8 @@ export const getNotifications = createAsyncThunk(
         const docSnap = await getDoc<INotificationsCollection>(userNotificationsRef);
 
         if (docSnap.exists()) {
+          await requestPermission();
+
           const data = docSnap.data();
           return thunkAPI.fulfillWithValue(data);
         } else {

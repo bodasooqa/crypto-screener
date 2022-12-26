@@ -13,7 +13,7 @@ const initialIsLoading: INotificationsLoading = {
 }
 
 const initialState: INotificationsState = {
-  value: {},
+  value: null,
   isLoading: { ...initialIsLoading }
 }
 
