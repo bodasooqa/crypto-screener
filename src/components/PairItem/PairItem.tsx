@@ -2,7 +2,7 @@ import React, { FC, useContext, useEffect } from 'react';
 import './PairItem.scss';
 import { Context } from '../../index';
 import { useFetching } from '../../hooks/useFetching';
-import { useChart, useKlineData, useNotifications, useSettings, useSocket } from './PartItem.hooks';
+import { useChart, useKlineData, useSettings, useSocket } from './PartItem.hooks';
 import { formatKline, updateKline } from '../../utils/kline';
 import Loader from '../Loader/Loader';
 import { Exchange, KlineInterval } from '../../models/exchange.model';
@@ -10,9 +10,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear, faBell } from '@fortawesome/free-solid-svg-icons';
 import { CSSTransition } from 'react-transition-group';
 import NotificationOverlay from '../NotificationOverlay/NotificationOverlay';
-import { useAuthState } from 'react-firebase-hooks/auth';
 import CardButton from '../UI/CardButton/CardButton';
-import { auth } from '../../config/firebase';
+import { useNotifications } from '../../hooks/useNotifications';
+import { useAuth } from '../../hooks/useAuth';
 
 interface PairItemProps {
   exchange: Exchange;
@@ -24,7 +24,7 @@ interface PairItemProps {
 const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
   const context = useContext(Context);
   const { network } = context;
-  const [globalUser] = useAuthState(auth);
+  const [globalUser] = useAuth();
 
   const chartId = `chart-${ exchange }-${ pair }`;
 

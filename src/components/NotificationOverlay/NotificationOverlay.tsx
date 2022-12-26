@@ -4,12 +4,13 @@ import AppInput from '../UI/AppInput/AppInput';
 import AppButton from '../UI/AppButton/AppButton';
 import { INotification, NotificationType, NotificationWorkType } from '../../models/notification.model';
 import { Exchange } from '../../models/exchange.model';
-import { useAppDispatch, useAppSelector } from '../../hooks';
+import { useAppDispatch } from '../../hooks';
 import { addNotification, removeNotification } from '../../features/notifications/actionCreators';
 import Loader from '../Loader/Loader';
 import CardButton from '../UI/CardButton/CardButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { useNotifications } from '../../hooks/useNotifications';
 
 interface NotificationOverlayProps {
   exchange: Exchange;
@@ -19,20 +20,17 @@ interface NotificationOverlayProps {
 
 const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlayProps>((
   {
-    symbol, exchange, momentPrice
-  }, ref
+    symbol,
+    exchange,
+    momentPrice
+  },
+  ref
 ) => {
-  const symbolKey = `${ exchange }-${ symbol }`;
-
   const dispatch = useAppDispatch();
-  const notifications = useAppSelector(state => !!state.notifications.value && state.notifications.value[symbolKey]) || [];
-  const isLoading = useAppSelector(state => state.notifications.isLoading);
 
   const [price, setPrice] = useState('');
 
-  const isNotificationsLoading = useMemo(() => {
-    return isLoading.all || isLoading.pairs.includes(symbolKey);
-  }, [isLoading]);
+  const { notifications, isNotificationsLoading } = useNotifications(symbol, exchange);
 
   const isButtonDisabled = useMemo(() => {
     return !price || isNotificationsLoading;

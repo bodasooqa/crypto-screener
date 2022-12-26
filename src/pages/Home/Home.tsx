@@ -4,12 +4,11 @@ import PairItem from '../../components/PairItem/PairItem';
 import { Exchange, KlineInterval } from '../../models/exchange.model';
 import { useAppDispatch } from '../../hooks';
 import { getNotifications } from '../../features/notifications/actionCreators';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../../config/firebase';
 import { setNotifications } from '../../features/notifications/notificationsSlice';
+import { useAuth } from '../../hooks/useAuth';
 
 const Home = () => {
-  const [globalUser] = useAuthState(auth);
+  const [globalUser] = useAuth();
 
   const dispatch = useAppDispatch();
 

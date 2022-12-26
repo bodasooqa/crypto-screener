@@ -2,11 +2,11 @@ import React from 'react';
 import './Navbar.scss';
 import AppButton from '../UI/AppButton/AppButton';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../config/firebase';
+import { useAuth } from '../../hooks/useAuth';
 
 const Navbar = () => {
-  const [globalUser] = useAuthState(auth);
+  const [globalUser] = useAuth();
 
   const login = async () => {
     const provider = new GoogleAuthProvider();

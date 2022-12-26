@@ -7,6 +7,7 @@ import { logWS } from '../../utils/logger';
 import { Kline, KlineColor } from '../../models/kline.model';
 import { Exchange, KlineInterval } from '../../models/exchange.model';
 import { useAppSelector } from '../../hooks';
+import { INotification } from '../../models/notification.model';
 
 export const useKlineData = () => {
   const [kline, setKline] = useState<Kline>([]);
@@ -222,33 +223,6 @@ export const useChart = () => {
   }, [chart, lineSeries]);
 
   return { chartInitiated, initChart, updateChart };
-};
-
-export const useNotifications = (pair: string, exchange: Exchange) => {
-  const symbolKey = `${ exchange }-${ pair }`;
-
-  const notifications = useAppSelector((state) => !!state.notifications.value && state.notifications.value[symbolKey]);
-  const isLoading = useAppSelector((state) => state.notifications.isLoading);
-
-  const [notificationsOpened, setNotificationsOpened] = useState(false);
-
-  const notificationsOverlayRef = useRef(null);
-
-  const notificationsCount = useMemo(() => {
-    return (notifications || [])?.length || 0;
-  }, [notifications]);
-
-  const isNotificationsLoading = useMemo(() => {
-    return isLoading.all || isLoading.pairs.includes(symbolKey);
-  }, [isLoading]);
-
-  return {
-    notificationsOpened,
-    notificationsCount,
-    notificationsOverlayRef,
-    isNotificationsLoading,
-    setNotificationsOpened
-  };
 };
 
 export const useSettings = () => {
