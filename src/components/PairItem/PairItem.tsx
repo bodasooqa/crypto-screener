@@ -13,10 +13,6 @@ import NotificationOverlay from '../NotificationOverlay/NotificationOverlay';
 import CardButton from '../UI/CardButton/CardButton';
 import { useNotifications } from '../../hooks/useNotifications';
 import { useAuth } from '../../hooks/useAuth';
-import { NotificationWorkType } from '../../models/notification.model';
-import { useAppDispatch } from '../../hooks';
-import { removeNotification } from '../../features/notifications/actionCreators';
-import alarmSound from '../../assets/audio/alarm.mp3';
 
 interface PairItemProps {
   exchange: Exchange;
@@ -29,8 +25,6 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
   const context = useContext(Context);
   const { network } = context;
   const [globalUser] = useAuth();
-
-  const dispatch = useAppDispatch();
 
   const chartId = `chart-${ exchange }-${ pair }`;
 
@@ -67,7 +61,8 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
     notificationsCount,
     notificationsOverlayRef,
     isNotificationsLoading,
-    setNotificationsOpened
+    setNotificationsOpened,
+    checkAndNotify
   } = useNotifications(pair, exchange);
   const { settingsButtonRef } = useSettings();
 
@@ -94,30 +89,7 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
 
   useEffect(() => {
     notifications.forEach((notification) => {
-      if (
-        (notification.momentPrice > notification.price && Number(actualPrice) <= notification.price)
-        || (notification.momentPrice < notification.price && Number(actualPrice) >= notification.price)
-      ) {
-        const toCapitalize = (str: string) => {
-          return `${ str[0].toUpperCase() }${ str.substring(1) }`
-        }
-
-        new Notification('BlackPortfolio', {
-          body: `${ toCapitalize(exchange) } ${ pair } — ${ toCapitalize(notification.type) } ${ notification.price }`
-        });
-
-        const interval = setInterval(() => {
-          new Audio(alarmSound).play();
-        }, 500);
-
-        setTimeout(() => {
-          clearInterval(interval);
-        }, 5000);
-
-        if (notification.workType === NotificationWorkType.ONCE) {
-          dispatch(removeNotification(notification));
-        }
-      }
+      checkAndNotify(notification, actualPrice);
     });
   }, [actualPrice]);
 
