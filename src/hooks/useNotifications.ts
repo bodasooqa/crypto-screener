@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from './index';
 import { INotification, NotificationWorkType } from '../models/notification.model';
 import { useMemo, useRef, useState } from 'react';
 import alarmSound from '../assets/audio/alarm.mp3';
-import { removeNotification } from '../features/notifications/actionCreators';
+import { changeNotification, removeNotification } from '../features/notifications/actionCreators';
 
 export const useNotifications = (pair: string, exchange: Exchange) => {
   const symbolKey = `${ exchange }-${ pair }`;
@@ -36,6 +36,11 @@ export const useNotifications = (pair: string, exchange: Exchange) => {
       ) {
         if (notification.workType === NotificationWorkType.ONCE) {
           dispatch(removeNotification(notification));
+        } else {
+          dispatch(changeNotification({
+            notification,
+            momentPrice: actualPrice
+          }));
         }
       }
     });
@@ -65,6 +70,11 @@ export const useNotifications = (pair: string, exchange: Exchange) => {
 
         if (notification.workType === NotificationWorkType.ONCE) {
           dispatch(removeNotification(notification));
+        } else {
+          dispatch(changeNotification({
+            notification,
+            momentPrice: actualPrice
+          }));
         }
       }
     });

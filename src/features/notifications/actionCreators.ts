@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { INotification, INotificationsCollection } from '../../models/notification.model';
+import { INotification, INotificationsCollection, INotificationSet } from '../../models/notification.model';
 import { arrayRemove, arrayUnion, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { app, db } from '../../config/firebase';
 import { getAuth } from 'firebase/auth';
@@ -73,7 +73,7 @@ export const getNotifications = createAsyncThunk(
       return thunkAPI.rejectWithValue(`Error getting documents: ${ err }`);
     }
   }
-)
+);
 
 export const removeNotification = createAsyncThunk(
   'notifications/removeNotification',
@@ -96,4 +96,38 @@ export const removeNotification = createAsyncThunk(
       return thunkAPI.rejectWithValue(`Error getting documents: ${ err }`);
     }
   }
-)
+);
+
+export const changeNotification = createAsyncThunk(
+  'notifications/changeNotification',
+  async ({ notification, momentPrice }: INotificationSet, thunkAPI) => {
+    try {
+      const { currentUser } = getAuth(app);
+
+      if (!!currentUser) {
+        const itemPath = `${ notification.exchange }-${ notification.symbol }`;
+        const changedNotification: INotification = {
+          ...notification,
+          momentPrice: parseFloat(momentPrice)
+        };
+
+        const userNotificationsRef = doc(db, `notifications/${ currentUser.uid }`);
+
+        await updateDoc(userNotificationsRef, {
+          [itemPath]: arrayRemove(notification)
+        });
+
+        await updateDoc(userNotificationsRef, {
+          [itemPath]: arrayUnion(changedNotification)
+        });
+
+        return thunkAPI.fulfillWithValue(changedNotification);
+      } else {
+        return thunkAPI.rejectWithValue('Unauthorized');
+      }
+    } catch (err) {
+      console.log(err)
+      return thunkAPI.rejectWithValue(`Error getting documents: ${ err }`);
+    }
+  }
+);

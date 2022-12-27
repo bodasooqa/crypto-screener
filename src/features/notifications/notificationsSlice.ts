@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { INotificationsCollection, INotificationsLoading } from '../../models/notification.model';
-import { addNotification, getNotifications, removeNotification } from './actionCreators';
+import { addNotification, changeNotification, getNotifications, removeNotification } from './actionCreators';
 
 interface INotificationsState {
   value: INotificationsCollection | null;
@@ -99,6 +99,17 @@ export const notificationsSlice = createSlice({
             ...state.isLoading.pairs,
             `${ meta.arg.exchange }-${ meta.arg.symbol }`
           ]
+        }
+      }
+    });
+
+    builder.addCase(changeNotification.fulfilled, (state, { payload }) => {
+      const itemPath = `${ payload.exchange }-${ payload.symbol }`;
+      if (!!state.value && !!state.value[itemPath]?.length) {
+        const idx = state.value[itemPath].findIndex(notification => notification.price === payload.price);
+        state.value[itemPath][idx] = {
+          ...state.value[itemPath][idx],
+          ...payload
         }
       }
     });

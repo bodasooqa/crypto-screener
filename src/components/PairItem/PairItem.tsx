@@ -143,7 +143,7 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
             onClick={ () => setNotificationsOpened(!notificationsOpened) }
           >
             { !!globalUser && !notificationsOpened && isNotificationsLoading
-              ? <Loader size='xs' color='black' />
+              ? <Loader size="xs" color="black" />
               : <FontAwesomeIcon icon={ faBell } size="sm" /> }
 
           </CardButton>
@@ -158,17 +158,17 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
         classNames="overlay-up"
         unmountOnExit
       >
-       <NotificationOverlay
-         ref={ notificationsOverlayRef }
-         exchange={ exchange }
-         symbol={ pair }
-         momentPrice={ actualPrice }
-       />
+        <NotificationOverlay
+          ref={ notificationsOverlayRef }
+          exchange={ exchange }
+          symbol={ pair }
+          momentPrice={ actualPrice }
+        />
       </CSSTransition>
 
       { isKlineLoading
         ? <div className="pair-item__loading-state">
-          <Loader size='lg' />
+          <Loader size="lg" />
         </div>
         : <div className="pair-item__content">
           <span className={ ['pair-item__actual-price', `pair-item__actual-price--${ actualColor }`].join(' ') }>

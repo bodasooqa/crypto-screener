@@ -23,7 +23,7 @@ export interface INotificationsCollection {
 }
 
 export interface INotificationSet {
-  key: string;
+  momentPrice: string;
   notification: INotification;
 }
 
