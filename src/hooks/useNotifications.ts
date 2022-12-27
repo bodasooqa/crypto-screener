@@ -28,32 +28,47 @@ export const useNotifications = (pair: string, exchange: Exchange) => {
     return isLoading.all || isLoading.pairs.includes(symbolKey);
   }, [isLoading]);
 
-  const checkAndNotify = (notification: INotification, actualPrice: string) => {
-    if (
-      (notification.momentPrice > notification.price && Number(actualPrice) <= notification.price)
-      || (notification.momentPrice < notification.price && Number(actualPrice) >= notification.price)
-    ) {
-      const toCapitalize = (str: string) => {
-        return `${ str[0].toUpperCase() }${ str.substring(1) }`
+  const checkNotifications = (actualPrice: string) => {
+    notifications.forEach(notification => {
+      if (
+        (notification.momentPrice > notification.price && Number(actualPrice) <= notification.price)
+        || (notification.momentPrice < notification.price && Number(actualPrice) >= notification.price)
+      ) {
+        if (notification.workType === NotificationWorkType.ONCE) {
+          dispatch(removeNotification(notification));
+        }
       }
+    });
+  };
 
-      new Notification('BlackPortfolio', {
-        body: `${ toCapitalize(exchange) } ${ pair } — ${ toCapitalize(notification.type) } ${ notification.price }`
-      });
+  const checkAndNotify = (actualPrice: string) => {
+    notifications.forEach(notification => {
+      if (
+        (notification.momentPrice > notification.price && Number(actualPrice) <= notification.price)
+        || (notification.momentPrice < notification.price && Number(actualPrice) >= notification.price)
+      ) {
+        const toCapitalize = (str: string) => {
+          return `${ str[0].toUpperCase() }${ str.substring(1) }`
+        }
 
-      const interval = setInterval(() => {
-        new Audio(alarmSound).play();
-      }, 500);
+        new Notification('BlackPortfolio', {
+          body: `${ toCapitalize(exchange) } ${ pair } — ${ toCapitalize(notification.type) } ${ notification.price }`
+        });
 
-      setTimeout(() => {
-        clearInterval(interval);
-      }, 5000);
+        const interval = setInterval(() => {
+          new Audio(alarmSound).play();
+        }, 500);
 
-      if (notification.workType === NotificationWorkType.ONCE) {
-        dispatch(removeNotification(notification));
+        setTimeout(() => {
+          clearInterval(interval);
+        }, 5000);
+
+        if (notification.workType === NotificationWorkType.ONCE) {
+          dispatch(removeNotification(notification));
+        }
       }
-    }
-  }
+    });
+  };
 
   return {
     notifications,
@@ -62,6 +77,7 @@ export const useNotifications = (pair: string, exchange: Exchange) => {
     notificationsOverlayRef,
     isNotificationsLoading,
     setNotificationsOpened,
+    checkNotifications,
     checkAndNotify
   };
 };

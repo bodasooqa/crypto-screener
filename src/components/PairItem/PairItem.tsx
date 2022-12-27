@@ -62,6 +62,7 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
     notificationsOverlayRef,
     isNotificationsLoading,
     setNotificationsOpened,
+    checkNotifications,
     checkAndNotify
   } = useNotifications(pair, exchange);
   const { settingsButtonRef } = useSettings();
@@ -88,10 +89,14 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
   }, [globalUser]);
 
   useEffect(() => {
-    notifications.forEach((notification) => {
-      checkAndNotify(notification, actualPrice);
-    });
+    checkAndNotify(actualPrice);
   }, [actualPrice]);
+
+  useEffect(() => {
+    if (!!notifications.length) {
+      checkNotifications(actualPrice);
+    }
+  }, [notifications]);
 
   useEffect(() => {
     initPair();

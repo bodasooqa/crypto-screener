@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { INotification, INotificationsCollection } from '../../models/notification.model';
-import { arrayRemove, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { arrayRemove, arrayUnion, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { app, db } from '../../config/firebase';
 import { getAuth } from 'firebase/auth';
 import { requestPermission } from '../../utils/notifications';
@@ -19,11 +19,15 @@ export const addNotification = createAsyncThunk(
 
         if (docSnap.exists()) {
           const data = docSnap.data();
-          await setDoc(userNotificationsRef, {
-            [itemPath]: !!data[itemPath]?.length
-              ? [...data[itemPath], notification]
-              : [notification]
-          }, { merge: true });
+          if (!!data[itemPath]?.length) {
+            await updateDoc(userNotificationsRef, {
+              [itemPath]: arrayUnion(notification)
+            });
+          } else {
+            await setDoc(userNotificationsRef, {
+              [itemPath]: [notification]
+            });
+          }
         } else {
           await setDoc(userNotificationsRef, {
             [itemPath]: [notification]
