@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect } from 'react';
+import React, { FC, useContext, useEffect, useMemo, useRef } from 'react';
 import './PairItem.scss';
 import { Context } from '../../index';
 import { useFetching } from '../../hooks/useFetching';
@@ -7,7 +7,7 @@ import { formatKline, updateKline } from '../../utils/kline';
 import Loader from '../Loader/Loader';
 import { Exchange, KlineInterval } from '../../models/exchange.model';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear, faBell } from '@fortawesome/free-solid-svg-icons';
+import { faGear, faBell, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { CSSTransition } from 'react-transition-group';
 import NotificationOverlay from '../NotificationOverlay/NotificationOverlay';
 import CardButton from '../UI/CardButton/CardButton';
@@ -27,6 +27,8 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
   const [globalUser] = useAuth();
 
   const chartId = `chart-${ exchange }-${ pair }`;
+
+  const errorRef = useRef(null);
 
   const [getKline, isKlineLoading, error] = useFetching(async () => {
     const { data } = await network[exchange].getKline(pair, interval);
@@ -66,6 +68,10 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
     checkAndNotify
   } = useNotifications(pair, exchange);
   const { settingsButtonRef } = useSettings();
+
+  const errorToShow = useMemo(() => {
+    return error?.response?.data.msg || error?.response?.data.retMsg || 'Exchange connection error';
+  }, [error]);
 
   const initPair = async () => {
     await getKline();
@@ -164,6 +170,23 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
           symbol={ pair }
           momentPrice={ actualPrice }
         />
+      </CSSTransition>
+
+
+      <CSSTransition
+        in={ !!error }
+        nodeRef={ errorRef }
+        timeout={ 300 }
+        classNames="fade"
+        unmountOnExit
+      >
+        <div ref={ errorRef } className="pair-item__error">
+          <FontAwesomeIcon icon={ faTriangleExclamation } />
+          <span>
+            { error?.message }: <br />
+            { errorToShow }
+          </span>
+        </div>
       </CSSTransition>
 
       { isKlineLoading

@@ -1,21 +1,26 @@
 import { useState } from 'react';
+import { AxiosError } from 'axios';
+import { ErrorData } from '../models/exchange.model';
 
-export type IUseFetching = [
+export type IUseFetching<E> = [
   () => Promise<void>,
   boolean,
-  string
+  AxiosError<E> | null
 ];
 
-export const useFetching = (callback: () => Promise<void>): IUseFetching => {
+export const useFetching = <T = void, E = ErrorData>(callback: () => Promise<T>): IUseFetching<E> => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<AxiosError<E> | null>(null);
 
-  const fetching = async () => {
+  const fetching = async (): Promise<void> => {
     try {
       setIsLoading(true);
       await callback();
     } catch (err) {
-      setError(err as string);
+      const error: AxiosError<E> = err as AxiosError<E>;
+      if (!!error && 'response' in error) {
+        setError(error);
+      }
     } finally {
       setIsLoading(false);
     }

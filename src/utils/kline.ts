@@ -37,11 +37,13 @@ export const getChartColor = (chartData: LineData[], dayOpenPrice: number, color
 }
 
 export const updateKline = (kline: Kline, candle: KlineItem): Kline => {
-  if (kline[kline.length - 1].t === candle.t) {
-    kline[kline.length - 1] = candle;
-  } else {
-    kline.shift();
-    kline.push(candle);
+  if (!!kline.length) {
+    if (kline[kline.length - 1].t === candle.t) {
+      kline[kline.length - 1] = candle;
+    } else {
+      kline.shift();
+      kline.push(candle);
+    }
   }
 
   return kline;
