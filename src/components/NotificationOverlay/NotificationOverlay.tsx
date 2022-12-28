@@ -33,7 +33,7 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
   const { notifications, isNotificationsLoading } = useNotifications(symbol, exchange);
 
   const isButtonDisabled = useMemo(() => {
-    return !price || isNotificationsLoading;
+    return !price || isNotificationsLoading || String(parseFloat(price)) === String(parseFloat(momentPrice));
   }, [price]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +61,7 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
   }
 
   const setMomentPrice = () => {
-    setPrice(String(Number(momentPrice)));
+    setPrice(String(parseFloat(momentPrice)));
   }
 
   const onRemove = (notification: INotification) => {

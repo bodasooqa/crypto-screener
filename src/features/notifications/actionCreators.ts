@@ -26,7 +26,7 @@ export const addNotification = createAsyncThunk(
           } else {
             await setDoc(userNotificationsRef, {
               [itemPath]: [notification]
-            });
+            }, { merge: true });
           }
         } else {
           await setDoc(userNotificationsRef, {
