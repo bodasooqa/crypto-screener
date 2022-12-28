@@ -6,8 +6,12 @@ export class BinanceApi {
   private axios: AxiosInstance;
 
   constructor() {
+    const host = process.env.NODE_ENV === 'development'
+      ? `http://${ window.location.hostname }:8000`
+      : process.env.REACT_APP_API_URL;
+
     this.axios = axios.create({
-      baseURL: process.env.REACT_APP_API_URL + '/binance'
+      baseURL: host + '/binance'
     })
   }
 

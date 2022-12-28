@@ -75,11 +75,6 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
 
   const initPair = async () => {
     await getKline();
-
-    setTimeout(() => {
-      initChart(chartId);
-      initSocket();
-    }, 0)
   }
 
   useEffect(() => {
@@ -103,6 +98,15 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
       checkNotifications(actualPrice);
     }
   }, [notifications]);
+
+  useEffect(() => {
+    if (!isKlineLoading) {
+      setTimeout(() => {
+        initChart(chartId);
+        initSocket();
+      }, 0);
+    }
+  }, [isKlineLoading]);
 
   useEffect(() => {
     initPair();
@@ -171,7 +175,6 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair, interval }) => {
           momentPrice={ actualPrice }
         />
       </CSSTransition>
-
 
       <CSSTransition
         in={ !!error }

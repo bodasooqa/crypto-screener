@@ -9,7 +9,7 @@ export type IUseFetching<E> = [
 ];
 
 export const useFetching = <T = void, E = ErrorData>(callback: () => Promise<T>): IUseFetching<E> => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<AxiosError<E> | null>(null);
 
   const fetching = async (): Promise<void> => {
