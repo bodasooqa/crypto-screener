@@ -1,0 +1,54 @@
+@import "src/styles/variables";
+
+.notification {
+  position: relative;
+  width: 100%;
+  display: flex;
+  background: rgba(white, .6);
+  padding: 16px;
+  border: 1px solid $gray-color;
+  border-radius: 8px;
+  gap: 16px;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 10px 15px -20px;
+  transition: all .3s;
+  box-sizing: border-box;
+
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 17px -20px;
+  }
+
+  &__icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: $main-color;
+    font-size: 22px;
+
+    &--green {
+      color: $green-color;
+    }
+
+    &--red {
+      color: $red-color;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__close-btn {
+    position: absolute;
+    right: 14px;
+    top: 10px;
+    background: transparent;
+    padding: 0;
+    border: none;
+    font-size: 16px;
+    color: $gray-color;
+  }
+}

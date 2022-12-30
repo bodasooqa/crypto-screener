@@ -4,6 +4,7 @@ import AppButton from '../UI/AppButton/AppButton';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '../../config/firebase';
 import { useAuth } from '../../hooks/useAuth';
+import NotificationsBar from '../NotificationsBar/NotificationsBar';
 
 const Navbar = () => {
   const [globalUser] = useAuth();
@@ -39,6 +40,8 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+
+      <NotificationsBar />
     </div>
   );
 };

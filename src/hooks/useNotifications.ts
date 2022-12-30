@@ -4,6 +4,8 @@ import { INotification, NotificationWorkType } from '../models/notification.mode
 import { useMemo, useRef, useState } from 'react';
 import alarmSound from '../assets/audio/alarm.mp3';
 import { changeNotification, removeNotification } from '../features/notifications/actionCreators';
+import { toCapitalize } from '../utils/format-string';
+import { addNotificationForBar } from '../features/notifications/notificationsSlice';
 
 export const useNotifications = (pair: string, exchange: Exchange) => {
   const symbolKey = `${ exchange }-${ pair }`;
@@ -14,7 +16,7 @@ export const useNotifications = (pair: string, exchange: Exchange) => {
     return (!!state.notifications.value && state.notifications.value[symbolKey]) || [];
   });
 
-  const isLoading = useAppSelector((state) => state.notifications.isLoading);
+  const isLoading = useAppSelector(state => state.notifications.isLoading);
 
   const [notificationsOpened, setNotificationsOpened] = useState(false);
 
@@ -52,9 +54,7 @@ export const useNotifications = (pair: string, exchange: Exchange) => {
         (notification.momentPrice > notification.price && Number(actualPrice) <= notification.price)
         || (notification.momentPrice < notification.price && Number(actualPrice) >= notification.price)
       ) {
-        const toCapitalize = (str: string) => {
-          return `${ str[0].toUpperCase() }${ str.substring(1) }`
-        }
+        dispatch(addNotificationForBar(notification));
 
         new Notification('BlackPortfolio', {
           body: `${ toCapitalize(exchange) } ${ pair } — ${ toCapitalize(notification.type) } ${ notification.price }`

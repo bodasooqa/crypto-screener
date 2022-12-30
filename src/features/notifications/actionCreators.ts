@@ -1,18 +1,29 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { INotification, INotificationsCollection, INotificationSet } from '../../models/notification.model';
+import {
+  INewNotification,
+  INotification,
+  INotificationsCollection,
+  INotificationSet
+} from '../../models/notification.model';
 import { arrayRemove, arrayUnion, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { app, db } from '../../config/firebase';
 import { getAuth } from 'firebase/auth';
 import { requestPermission } from '../../utils/notifications';
+import { generateNewUuidForNotification } from '../../utils/uuid';
 
 export const addNotification = createAsyncThunk(
   'notifications/addNotification',
-  async (notification: INotification, thunkAPI) => {
+  async (notification: INewNotification, thunkAPI) => {
     try {
       const { currentUser } = getAuth(app);
 
       if (!!currentUser) {
         const itemPath = `${ notification.exchange }-${ notification.symbol }`;
+
+        const newNotification: INotification = {
+          ...notification,
+          id: generateNewUuidForNotification()
+        }
 
         const userNotificationsRef = doc(db, `notifications/${ currentUser.uid }`);
         const docSnap = await getDoc<INotificationsCollection>(userNotificationsRef);
@@ -21,22 +32,25 @@ export const addNotification = createAsyncThunk(
           const data = docSnap.data();
           if (!!data[itemPath]?.length) {
             await updateDoc(userNotificationsRef, {
-              [itemPath]: arrayUnion(notification)
+              [itemPath]: arrayUnion({
+                ...newNotification,
+                id: generateNewUuidForNotification(data[itemPath])
+              })
             });
           } else {
             await setDoc(userNotificationsRef, {
-              [itemPath]: [notification]
+              [itemPath]: [newNotification]
             }, { merge: true });
           }
         } else {
           await setDoc(userNotificationsRef, {
-            [itemPath]: [notification]
+            [itemPath]: [newNotification]
           });
         }
 
         await requestPermission();
 
-        return thunkAPI.fulfillWithValue(notification);
+        return thunkAPI.fulfillWithValue(newNotification);
       } else {
         return thunkAPI.rejectWithValue('Unauthorized');
       }

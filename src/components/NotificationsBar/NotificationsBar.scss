@@ -1,0 +1,28 @@
+@import "src/styles/variables";
+@import "src/styles/animations";
+@import "src/components/Notification/Notification";
+
+.notifications-bar {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  right: 16px;
+  top: 76px;
+  z-index: 10;
+  gap: 8px;
+  width: 300px;
+  height: calc(100% - 92px);
+
+  &__item {
+    @extend .notification;
+
+    &--button {
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      width: 100%;
+      color: $main-color;
+      font-weight: 500;
+    }
+  }
+}

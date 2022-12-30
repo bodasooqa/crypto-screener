@@ -10,6 +10,7 @@ export enum NotificationWorkType {
 }
 
 export interface INotification {
+  id: string;
   type: NotificationType;
   workType: NotificationWorkType;
   price: number;
@@ -17,6 +18,8 @@ export interface INotification {
   symbol: string;
   exchange: Exchange;
 }
+
+export type INewNotification = Omit<INotification, 'id'>;
 
 export interface INotificationsCollection {
   [key: string]: INotification[]

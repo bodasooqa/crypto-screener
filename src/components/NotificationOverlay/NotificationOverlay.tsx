@@ -2,7 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import './NotificationOverlay.scss';
 import AppInput from '../UI/AppInput/AppInput';
 import AppButton from '../UI/AppButton/AppButton';
-import { INotification, NotificationType, NotificationWorkType } from '../../models/notification.model';
+import {
+  INewNotification,
+  INotification,
+  NotificationType,
+  NotificationWorkType
+} from '../../models/notification.model';
 import { Exchange } from '../../models/exchange.model';
 import { useAppDispatch } from '../../hooks';
 import { addNotification, removeNotification } from '../../features/notifications/actionCreators';
@@ -32,8 +37,12 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
 
   const { notifications, isNotificationsLoading } = useNotifications(symbol, exchange);
 
+  const floatMomentPrice = useMemo(() => {
+    return parseFloat(momentPrice);
+  }, [momentPrice]);
+
   const isButtonDisabled = useMemo(() => {
-    return !price || isNotificationsLoading || String(parseFloat(price)) === String(parseFloat(momentPrice));
+    return !price || isNotificationsLoading || String(parseFloat(price)) === String(floatMomentPrice);
   }, [price]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,11 +55,11 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const newNotification: INotification = {
+    const newNotification: INewNotification = {
       type: NotificationType.CROSS,
       workType: NotificationWorkType.ONCE,
-      price: Number(price),
-      momentPrice: Number(momentPrice),
+      price: parseFloat(price),
+      momentPrice: floatMomentPrice,
       symbol,
       exchange
     };
@@ -60,23 +69,9 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
     dispatch(addNotification(newNotification));
   }
 
-  const setMomentPrice = () => {
-    setPrice(String(parseFloat(momentPrice)));
-  }
-
   const onRemove = (notification: INotification) => {
     dispatch(removeNotification(notification));
   }
-
-  useEffect(() => {
-    if (!isNotificationsLoading) {
-      setMomentPrice();
-    }
-  }, [isNotificationsLoading]);
-
-  useEffect(() => {
-    setMomentPrice();
-  }, []);
 
   return (
     <div className="notification-overlay" ref={ ref }>
@@ -90,7 +85,7 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
           <AppInput
             value={ price }
             type="number"
-            placeholder="Price"
+            placeholder={ `${ floatMomentPrice }` }
             preText="Cross"
             onChange={ handleChange }
           />
@@ -110,10 +105,10 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
         </form>
       </div>
       <div className="notification-overlay__content">
-        { notifications.map((notification, idx) =>
+        { notifications.map((notification) =>
           <div
             className="notification-overlay__item"
-            key={ `notification-${ idx }` }
+            key={ `notification-${ notification.id }` }
           >
             <span className="notification-overlay__item__title">
               <b>{ notification.type } </b>

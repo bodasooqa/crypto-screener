@@ -1,10 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { INotificationsCollection, INotificationsLoading } from '../../models/notification.model';
+import {
+  INotification,
+  INotificationsCollection,
+  INotificationsLoading
+} from '../../models/notification.model';
 import { addNotification, changeNotification, getNotifications, removeNotification } from './actionCreators';
 
 interface INotificationsState {
   value: INotificationsCollection | null;
   isLoading: INotificationsLoading;
+  forBar: INotification[];
 }
 
 const initialIsLoading: INotificationsLoading = {
@@ -14,16 +19,30 @@ const initialIsLoading: INotificationsLoading = {
 
 const initialState: INotificationsState = {
   value: null,
-  isLoading: { ...initialIsLoading }
+  isLoading: { ...initialIsLoading },
+  forBar: []
 }
 
 export const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
   reducers: {
-    setNotifications: (state, action: PayloadAction<INotificationsCollection | null>) => {
-      state.value = action.payload;
+    setNotifications: (state, { payload }: PayloadAction<INotificationsCollection | null>) => {
+      state.value = payload;
     },
+
+    addNotificationForBar: (state, { payload }: PayloadAction<INotification>) => {
+      state.forBar.push(payload);
+    },
+
+    removeNotificationFromBar: (state, { payload }: PayloadAction<string>) => {
+      const idx = state.forBar.findIndex(notification => notification.id === payload);
+      state.forBar.splice(idx, 1);
+    },
+
+    removeAllNotificationsFromBar: (state) => {
+      state.forBar = [];
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(addNotification.fulfilled, (state, { payload }) => {
@@ -84,7 +103,7 @@ export const notificationsSlice = createSlice({
       const key = `${ payload.exchange }-${ payload.symbol }`;
 
       if (!!payload && !!state.value) {
-        const idx = state.value[key].findIndex(item => item.price === payload.price);
+        const idx = state.value[key].findIndex(item => item.id === payload.id);
         state.value[key].splice(idx, 1);
       }
 
@@ -116,6 +135,11 @@ export const notificationsSlice = createSlice({
   }
 });
 
-export const { setNotifications } = notificationsSlice.actions;
+export const {
+  addNotificationForBar,
+  setNotifications,
+  removeAllNotificationsFromBar,
+  removeNotificationFromBar
+} = notificationsSlice.actions;
 
 export default notificationsSlice.reducer;
