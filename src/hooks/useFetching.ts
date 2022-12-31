@@ -14,6 +14,7 @@ export const useFetching = <T = void, E = ErrorData>(callback: () => Promise<T>)
 
   const fetching = async (): Promise<void> => {
     try {
+      setError(null);
       setIsLoading(true);
       await callback();
     } catch (err) {

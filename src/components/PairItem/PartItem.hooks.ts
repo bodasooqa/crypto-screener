@@ -87,7 +87,7 @@ export const useSocket = (
       case Exchange.BYBIT:
         return process.env.REACT_APP_BYBIT_WSS!;
       case Exchange.BINANCE:
-        return `${ process.env.REACT_APP_BINANCE_WSS }/${ pair.toLowerCase() }@kline_1m`;
+        return `${ process.env.REACT_APP_BINANCE_WSS }/${ pair.toLowerCase() }@kline_15m`;
     }
   }
 
@@ -96,12 +96,12 @@ export const useSocket = (
       case Exchange.BYBIT:
         return {
           op: 'subscribe',
-          args: [`kline.1m.${ pair }`],
+          args: [`kline.15m.${ pair }`],
         }
       case Exchange.BINANCE:
         return {
           method: 'SUBSCRIBE',
-          params: [`${ pair.toLowerCase() }@kline_1m`]
+          params: [`${ pair.toLowerCase() }@kline_15m`]
         }
     }
   }
