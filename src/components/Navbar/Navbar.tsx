@@ -5,6 +5,7 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '../../config/firebase';
 import { useAuth } from '../../hooks/useAuth';
 import NotificationsBar from '../NotificationsBar/NotificationsBar';
+import logoSvg from '../../assets/img/logo.svg';
 
 const Navbar = () => {
   const [globalUser] = useAuth();
@@ -23,8 +24,8 @@ const Navbar = () => {
     <div className='navbar'>
       <div className='container'>
         <div className="navbar__content">
-          <div className="navbar__title">
-            <strong>Black</strong>Portfolio
+          <div className="navbar__logo">
+            <img src={ logoSvg } alt="Logo" />
           </div>
 
           <div className="navbar__actions">

@@ -1,8 +1,9 @@
 import React from 'react';
+import './NotFound.scss';
 
 const NotFound = () => {
   return (
-    <div>
+    <div className='not-found'>
       404
     </div>
   );

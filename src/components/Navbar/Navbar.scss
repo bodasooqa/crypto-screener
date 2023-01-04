@@ -3,16 +3,21 @@
 .navbar {
   position: relative;
   background: $main-color;
+  height: 64px;
 
   &__content {
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 16px;
     color: white;
+    height: 100%;
   }
 
-  &__title {
-    font-weight: 300;
+  &__logo {
+    > img {
+      height: 25px;
+    }
   }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { publicRoutes } from './routes';
-import NotFound from './pages/NotFound';
+import NotFound from './pages/NotFound/NotFound';
 
 const AppRouter = () => {
   const user = true;

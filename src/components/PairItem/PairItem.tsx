@@ -163,7 +163,7 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
         <div className={ [
           'pair-item__header__actions',
           notificationsOpened && !settingsOpened ? 'pair-item__header__actions--end' : '',
-          (notificationsOpened || settingsOpened) ? 'pair-item__header__actions--active' : ''
+          settingsOpened ? 'pair-item__header__actions--active' : ''
         ].join(' ') }>
           <CSSTransition
             in={ !notificationsOpened }

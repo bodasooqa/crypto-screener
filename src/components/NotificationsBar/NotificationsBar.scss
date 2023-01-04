@@ -7,11 +7,11 @@
   display: flex;
   flex-direction: column;
   right: 16px;
-  top: 76px;
+  top: 80px;
   z-index: 10;
   gap: 8px;
   width: 300px;
-  max-height: calc(100% - 92px);
+  max-height: calc(100% - 96px);
 
   &__item {
     @extend .notification;
