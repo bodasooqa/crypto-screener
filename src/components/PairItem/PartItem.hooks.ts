@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BybitKlineItem } from '../../models/bybit.model';
 import { createChart, IChartApi, ISeriesApi, LineData, UTCTimestamp } from 'lightweight-charts';
 import { getChartColor, getColor } from '../../utils/kline';
@@ -87,7 +87,7 @@ export const useSocket = (
       case Exchange.BYBIT:
         return process.env.REACT_APP_BYBIT_WSS!;
       case Exchange.BINANCE:
-        return `${ process.env.REACT_APP_BINANCE_WSS }/${ pair.toLowerCase() }@kline_15m`;
+        return `${ process.env.REACT_APP_BINANCE_WSS }/${ pair.toLowerCase() }@kline_${ interval }`;
     }
   }
 
@@ -96,17 +96,18 @@ export const useSocket = (
       case Exchange.BYBIT:
         return {
           op: 'subscribe',
-          args: [`kline.15m.${ pair }`],
+          args: [`kline.${ interval }.${ pair }`],
         }
       case Exchange.BINANCE:
         return {
           method: 'SUBSCRIBE',
-          params: [`${ pair.toLowerCase() }@kline_15m`]
+          params: [`${ pair.toLowerCase() }@kline_${ interval }`]
         }
     }
   }
 
   const initSocket = () => {
+    closeConnection();
     setWsClient(
       new WebSocket(
         getWSSEndpoint()
@@ -119,7 +120,16 @@ export const useSocket = (
       clearInterval(pingInterval);
     }
 
-    wsClient?.close();
+    if (!!wsClient) {
+      wsClient.removeEventListener('open', onOpen);
+      wsClient.removeEventListener('message', onMessage);
+      wsClient.removeEventListener('close', onClose);
+      wsClient.close();
+
+      setWsClient(null);
+    }
+
+    setWsClientInitiated(false);
   }
 
   const onOpen = () => {
@@ -159,17 +169,19 @@ export const useSocket = (
     }
   }
 
+  const onClose = () => {
+    logWS('Connection closed');
+  }
+
   useEffect(() => {
     if (!!wsClient && !wsClientInitiated) {
       setWsClientInitiated(true);
 
       wsClient.addEventListener('open', onOpen);
       wsClient.addEventListener('message', onMessage);
-      wsClient.addEventListener('close', () => {
-        logWS('Connection closed');
-      });
+      wsClient.addEventListener('close', onClose);
     }
-  }, [wsClient]);
+  }, [wsClient, wsClientInitiated]);
 
   return { initSocket, closeConnection };
 };
@@ -180,12 +192,20 @@ export const useChart = () => {
   const [chartInitiated, setChartInitiated] = useState(false);
 
   const initChart = (chartId: string) => {
+    clearChart();
+
     const element = document.getElementById(chartId) as HTMLDivElement;
     setChart(createChart(element as HTMLDivElement, {
       ...baseChartConfig,
       width: element.clientWidth,
     }));
   }
+
+  const clearChart = () => {
+    setChart(null);
+    setLineSeries(null);
+    setChartInitiated(false);
+  };
 
   const updateChart = (chartData: LineData[], dayOpenPrice: number) => {
     if (!!lineSeries) {
@@ -222,9 +242,3 @@ export const useChart = () => {
 
   return { chartInitiated, initChart, updateChart };
 };
-
-export const useSettings = () => {
-  const settingsButtonRef = useRef(null);
-
-  return { settingsButtonRef }
-}

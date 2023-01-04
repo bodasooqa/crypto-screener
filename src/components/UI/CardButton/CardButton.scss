@@ -14,6 +14,7 @@
   transition: all .3s;
   height: 22px;
   width: 22px;
+  min-width: 22px;
   color: black;
 
   $disabled-shadow: rgba($main-color, .5) 0 0 8px -4px, rgba(white, .8) 0 0 8px -4px;

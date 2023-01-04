@@ -1,6 +1,6 @@
 @import "src/styles/variables";
 
-.app-input {
+.app-select {
   $app-input: &;
   display: flex;
   width: 100%;
@@ -32,7 +32,7 @@
     }
   }
 
-  > input {
+  > select {
     flex: 1;
     border: 1px solid $gray-color;
     outline: none;

@@ -1,25 +1,32 @@
-import React, { FC } from 'react';
+import React, { ChangeEvent, FC, HTMLInputTypeAttribute } from 'react';
 import './AppInput.scss';
 
 interface AppInputProps {
+  label?: string;
   name?: string;
-  placeholder: string;
+  placeholder?: string;
   preText?: string;
-  type: string;
+  type: HTMLInputTypeAttribute;
   value: string;
   onInput?: () => void;
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
 const AppInput: FC<AppInputProps> = (props) => {
   return (
     <div className="app-input">
+      { props.label
+        && <label className='app-input__label' htmlFor={ props.name }>
+          { props.label }
+        </label> }
+
       { props.preText
         && <label htmlFor={ props.name }>
           { props.preText }
         </label> }
 
       <input
+        id={ props.name }
         name={ props.name }
         type={ props.type }
         placeholder={ props.placeholder }

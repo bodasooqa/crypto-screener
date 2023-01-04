@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import './NotificationOverlay.scss';
 import AppInput from '../UI/AppInput/AppInput';
 import AppButton from '../UI/AppButton/AppButton';
@@ -7,10 +7,10 @@ import {
   INotification,
   NotificationType,
   NotificationWorkType
-} from '../../models/notification.model';
+} from '../../models/notifications.model';
 import { Exchange } from '../../models/exchange.model';
 import { useAppDispatch } from '../../hooks';
-import { addNotification, removeNotification } from '../../features/notifications/actionCreators';
+import { addNotification, removeNotification } from '../../store/features/notifications/actionCreators';
 import Loader from '../Loader/Loader';
 import CardButton from '../UI/CardButton/CardButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

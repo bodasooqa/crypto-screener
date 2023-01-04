@@ -1,11 +1,11 @@
 import { Exchange } from '../models/exchange.model';
 import { useAppDispatch, useAppSelector } from './index';
-import { INotification, NotificationWorkType } from '../models/notification.model';
+import { INotification, NotificationWorkType } from '../models/notifications.model';
 import { useMemo, useRef, useState } from 'react';
 import alarmSound from '../assets/audio/alarm.mp3';
-import { changeNotification, removeNotification } from '../features/notifications/actionCreators';
+import { changeNotification, removeNotification } from '../store/features/notifications/actionCreators';
 import { toCapitalize } from '../utils/format-string';
-import { addNotificationForBar } from '../features/notifications/notificationsSlice';
+import { addNotificationForBar } from '../store/features/notifications/notificationsSlice';
 
 export const useNotifications = (pair: string, exchange: Exchange) => {
   const symbolKey = `${ exchange }-${ pair }`;
@@ -16,7 +16,9 @@ export const useNotifications = (pair: string, exchange: Exchange) => {
     return (!!state.notifications.value && state.notifications.value[symbolKey]) || [];
   });
 
-  const isLoading = useAppSelector(state => state.notifications.isLoading);
+  const { isLoading } = useAppSelector(state => state.notifications);
+
+  const notificationsButtonRef = useRef(null);
 
   const [notificationsOpened, setNotificationsOpened] = useState(false);
 
@@ -86,6 +88,7 @@ export const useNotifications = (pair: string, exchange: Exchange) => {
     notificationsCount,
     notificationsOverlayRef,
     isNotificationsLoading,
+    notificationsButtonRef,
     setNotificationsOpened,
     checkNotifications,
     checkAndNotify

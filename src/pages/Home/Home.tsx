@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import './Home.scss';
 import PairItem from '../../components/PairItem/PairItem';
-import { Exchange, KlineInterval } from '../../models/exchange.model';
+import { Exchange } from '../../models/exchange.model';
 import { useAppDispatch } from '../../hooks';
-import { getNotifications } from '../../features/notifications/actionCreators';
-import { setNotifications } from '../../features/notifications/notificationsSlice';
+import { getNotifications } from '../../store/features/notifications/actionCreators';
+import { setNotifications } from '../../store/features/notifications/notificationsSlice';
 import { useAuth } from '../../hooks/useAuth';
+import { getSettings } from '../../store/features/settings/actionCreators';
+import { setSettings } from '../../store/features/settings/settingsSlice';
 
 const Home = () => {
   const [globalUser] = useAuth();
@@ -13,25 +15,27 @@ const Home = () => {
   const dispatch = useAppDispatch();
 
   const [pairs] = useState([
-    { exchange: Exchange.BINANCE, symbol: 'BTCUSDT', interval: '15m' as KlineInterval },
-    { exchange: Exchange.BINANCE, symbol: 'ETHUSDT', interval: '15m' as KlineInterval },
-    { exchange: Exchange.BINANCE, symbol: 'SOLUSDT', interval: '15m' as KlineInterval },
-    { exchange: Exchange.BINANCE, symbol: 'ADAUSDT', interval: '15m' as KlineInterval },
-    { exchange: Exchange.BINANCE, symbol: 'ATOMUSDT', interval: '15m' as KlineInterval },
-    { exchange: Exchange.BINANCE, symbol: 'XRPUSDT', interval: '15m' as KlineInterval },
-    { exchange: Exchange.BYBIT, symbol: 'BTCUSDT', interval: '15m' as KlineInterval },
-    { exchange: Exchange.BYBIT, symbol: 'ETHUSDT', interval: '15m' as KlineInterval },
-    { exchange: Exchange.BYBIT, symbol: 'SOLUSDT', interval: '15m' as KlineInterval },
-    { exchange: Exchange.BYBIT, symbol: 'ADAUSDT', interval: '15m' as KlineInterval },
-    { exchange: Exchange.BYBIT, symbol: 'ATOMUSDT', interval: '15m' as KlineInterval },
-    { exchange: Exchange.BYBIT, symbol: 'XRPUSDT', interval: '15m' as KlineInterval },
+    { exchange: Exchange.BINANCE, symbol: 'BTCUSDT' },
+    { exchange: Exchange.BINANCE, symbol: 'ETHUSDT' },
+    { exchange: Exchange.BINANCE, symbol: 'SOLUSDT' },
+    { exchange: Exchange.BINANCE, symbol: 'ADAUSDT' },
+    { exchange: Exchange.BINANCE, symbol: 'ATOMUSDT' },
+    { exchange: Exchange.BINANCE, symbol: 'XRPUSDT' },
+    { exchange: Exchange.BYBIT, symbol: 'BTCUSDT' },
+    { exchange: Exchange.BYBIT, symbol: 'ETHUSDT' },
+    { exchange: Exchange.BYBIT, symbol: 'SOLUSDT' },
+    { exchange: Exchange.BYBIT, symbol: 'ADAUSDT' },
+    { exchange: Exchange.BYBIT, symbol: 'ATOMUSDT' },
+    { exchange: Exchange.BYBIT, symbol: 'XRPUSDT' },
   ]);
 
   useEffect(() => {
     if (!!globalUser) {
       dispatch(getNotifications());
+      dispatch(getSettings());
     } else {
       dispatch(setNotifications(null));
+      dispatch(setSettings(null));
     }
   }, [globalUser]);
 
@@ -40,12 +44,11 @@ const Home = () => {
       <div className="container">
         <div className="home__content">
           <div className="home__pairs">
-            { pairs.map(({ exchange, symbol, interval }) =>
+            { pairs.map(({ exchange, symbol }) =>
               <PairItem
                 key={ `${ exchange }-${ symbol }` }
                 exchange={ exchange }
                 pair={ symbol }
-                interval={ interval }
               />
             ) }
           </div>

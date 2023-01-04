@@ -2,13 +2,13 @@ import React, { FC, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import './NotificationsBar.scss';
 import '../../styles/_animations.scss';
-import { removeAllNotificationsFromBar } from '../../features/notifications/notificationsSlice';
+import { removeAllNotificationsFromBar } from '../../store/features/notifications/notificationsSlice';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import Notification from '../Notification/Notification';
 
 const NotificationsBar: FC = () => {
   const dispatch = useAppDispatch();
-  const forBar = useAppSelector(state => state.notifications.forBar);
+  const { forBar } = useAppSelector(state => state.notifications);
 
   const clearButtonRef = useRef();
 

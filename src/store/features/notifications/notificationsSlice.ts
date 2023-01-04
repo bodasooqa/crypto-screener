@@ -3,7 +3,7 @@ import {
   INotification,
   INotificationsCollection,
   INotificationsLoading
-} from '../../models/notification.model';
+} from '../../../models/notifications.model';
 import { addNotification, changeNotification, getNotifications, removeNotification } from './actionCreators';
 
 interface INotificationsState {
@@ -46,8 +46,9 @@ export const notificationsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(addNotification.fulfilled, (state, { payload }) => {
-      const key = `${ payload.exchange }-${ payload.symbol }`
       if (!!payload) {
+        const key = `${ payload.exchange }-${ payload.symbol }`;
+
         if (!!state.value) {
           state.value[key]
             ? state.value[key].push(payload)
@@ -55,7 +56,7 @@ export const notificationsSlice = createSlice({
         } else {
           state.value = {
             [key]: [payload]
-          }
+          };
         }
       }
 

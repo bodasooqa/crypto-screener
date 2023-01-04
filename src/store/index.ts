@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
-import notificationsReducer from '../features/notifications/notificationsSlice';
+import notificationsReducer from './features/notifications/notificationsSlice';
+import settingsReducer from './features/settings/settingsSlice';
 
 const store = configureStore({
   reducer: {
-    notifications: notificationsReducer
+    notifications: notificationsReducer,
+    settings: settingsReducer,
   }
 });
 

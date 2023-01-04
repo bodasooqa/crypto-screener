@@ -1,11 +1,11 @@
 import React, { FC } from 'react';
 import './Notification.scss';
-import { INotification } from '../../models/notification.model';
+import { INotification } from '../../models/notifications.model';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowTrendDown, faArrowTrendUp, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { toCapitalize } from '../../utils/format-string';
 import { useAppDispatch } from '../../hooks';
-import { removeNotificationFromBar } from '../../features/notifications/notificationsSlice';
+import { removeNotificationFromBar } from '../../store/features/notifications/notificationsSlice';
 
 interface NotificationProps {
   notification: INotification;
