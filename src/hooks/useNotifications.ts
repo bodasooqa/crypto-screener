@@ -6,6 +6,8 @@ import alarmSound from '../assets/audio/alarm.mp3';
 import { changeNotification, removeNotification } from '../store/features/notifications/actionCreators';
 import { toCapitalize } from '../utils/format-string';
 import { addNotificationForBar } from '../store/features/notifications/notificationsSlice';
+import { faArrowTrendDown, faArrowTrendUp } from '@fortawesome/free-solid-svg-icons';
+import { KlineColor } from '../models/kline.model';
 
 export const useNotifications = (pair: string, exchange: Exchange) => {
   const symbolKey = `${ exchange }-${ pair }`;
@@ -56,7 +58,22 @@ export const useNotifications = (pair: string, exchange: Exchange) => {
         (notification.momentPrice > notification.price && Number(actualPrice) <= notification.price)
         || (notification.momentPrice < notification.price && Number(actualPrice) >= notification.price)
       ) {
-        dispatch(addNotificationForBar(notification));
+        const getNotificationColor = (): KlineColor => {
+          if (notification.price > notification.momentPrice) {
+            return KlineColor.GREEN;
+          } else if (notification.price < notification.momentPrice) {
+            return KlineColor.RED;
+          } else {
+            return KlineColor.NORMAL;
+          }
+        };
+
+        dispatch(addNotificationForBar({
+          title: `${ toCapitalize(notification.exchange) } — ${ notification.symbol }`,
+          text: `${ toCapitalize(notification.type) } ${ notification.price }`,
+          icon: notification.price > notification.momentPrice ? faArrowTrendUp : faArrowTrendDown,
+          color: getNotificationColor(),
+        }));
 
         new Notification('BlackPortfolio', {
           body: `${ toCapitalize(exchange) } ${ pair } — ${ toCapitalize(notification.type) } ${ notification.price }`

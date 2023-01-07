@@ -1,4 +1,5 @@
 import { Exchange } from './exchange.model';
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 export enum NotificationType {
   CROSS = 'cross',
@@ -34,3 +35,13 @@ export interface INotificationsLoading {
   all: boolean;
   pairs: string[];
 }
+
+export interface IBarNotification {
+  id: string;
+  title?: string;
+  text: string;
+  icon?: IconDefinition;
+  color?: string;
+}
+
+export type INewBarNotification = Omit<IBarNotification, 'id'>;

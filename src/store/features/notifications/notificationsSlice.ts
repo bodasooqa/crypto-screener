@@ -1,15 +1,17 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
-  INotification,
+  IBarNotification,
+  INewBarNotification,
   INotificationsCollection,
   INotificationsLoading
 } from '../../../models/notifications.model';
 import { addNotification, changeNotification, getNotifications, removeNotification } from './actionCreators';
+import { generateUuid } from '../../../utils/uuid';
 
 interface INotificationsState {
   value: INotificationsCollection | null;
   isLoading: INotificationsLoading;
-  forBar: INotification[];
+  forBar: IBarNotification[];
 }
 
 const initialIsLoading: INotificationsLoading = {
@@ -31,8 +33,13 @@ export const notificationsSlice = createSlice({
       state.value = payload;
     },
 
-    addNotificationForBar: (state, { payload }: PayloadAction<INotification>) => {
-      state.forBar.push(payload);
+    addNotificationForBar: (state, { payload }: PayloadAction<INewBarNotification>) => {
+      const newNotification: IBarNotification = {
+        id: generateUuid(),
+        ...payload
+      }
+
+      state.forBar.push(newNotification);
     },
 
     removeNotificationFromBar: (state, { payload }: PayloadAction<string>) => {

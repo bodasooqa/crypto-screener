@@ -37,13 +37,13 @@ export const useSettings = (pair: string, exchange: Exchange) => {
   const updateSettings = () => {
     if (!!settings) {
       if (JSON.stringify(settings) !== JSON.stringify(newSettings)) {
-        return dispatch(setSettingsItem({
+        dispatch(setSettingsItem({
           ...settings,
           ...newSettings,
         }));
       }
     } else {
-      return dispatch(setSettingsItem({
+      dispatch(setSettingsItem({
         ...initialSettings,
         ...newSettings,
       }));

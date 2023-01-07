@@ -1,14 +1,13 @@
 import React, { FC } from 'react';
 import './Notification.scss';
-import { INotification } from '../../models/notifications.model';
+import { IBarNotification } from '../../models/notifications.model';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowTrendDown, faArrowTrendUp, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { toCapitalize } from '../../utils/format-string';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useAppDispatch } from '../../hooks';
 import { removeNotificationFromBar } from '../../store/features/notifications/notificationsSlice';
 
 interface NotificationProps {
-  notification: INotification;
+  notification: IBarNotification;
 }
 
 const Notification: FC<NotificationProps> = ({ notification }) => {
@@ -22,16 +21,17 @@ const Notification: FC<NotificationProps> = ({ notification }) => {
       >
         <FontAwesomeIcon icon={ faXmark }></FontAwesomeIcon>
       </button>
-      <div className={ [
-        'notification__icon',
-        notification.price > notification.momentPrice ? 'notification__icon--green' : '',
-        notification.price < notification.momentPrice ? 'notification__icon--red' : ''
-      ].join(' ') }>
-        <FontAwesomeIcon icon={ notification.price > notification.momentPrice ? faArrowTrendUp : faArrowTrendDown } />
-      </div>
+      { !!notification.icon &&
+        <div className={ [
+          'notification__icon',
+          !!notification.color ? `notification__icon--${ notification.color }` : ''
+        ].join(' ') }>
+          <FontAwesomeIcon icon={ notification.icon } />
+        </div> }
+
       <div className="notification__content">
-        <b>{ toCapitalize(notification.exchange) } — { notification.symbol }</b>
-        <span>{ toCapitalize(notification.type) } { notification.price }</span>
+        { !!notification.title && <b>{ notification.title }</b> }
+        <span>{ notification.text }</span>
       </div>
     </div>
   );

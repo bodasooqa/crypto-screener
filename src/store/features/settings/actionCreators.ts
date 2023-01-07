@@ -4,6 +4,8 @@ import { app, db } from '../../../config/firebase';
 import { getAuth } from 'firebase/auth';
 import { generateNewUuidForSettingsItem } from '../../../utils/uuid';
 import { INewSettingsItem, ISettingsCollection, ISettingsItem } from '../../../models/settings.model';
+import { addNotificationForBar } from '../notifications/notificationsSlice';
+import { toCapitalize } from '../../../utils/format-string';
 
 export const setSettingsItem = createAsyncThunk(
   'settings/setSettingsItem',
@@ -17,6 +19,13 @@ export const setSettingsItem = createAsyncThunk(
         const userSettingsRef = doc(db, `settings/${ currentUser.uid }`);
         const docSnap = await getDoc<ISettingsCollection>(userSettingsRef);
 
+        const notify = () => {
+          thunkAPI.dispatch(addNotificationForBar({
+            title: `Settings — ${ toCapitalize(settingsItem.exchange) } ${ settingsItem.symbol }`,
+            text: 'Changes saved successfully'
+          }));
+        }
+
         const createDoc = async (data: ISettingsCollection | null = null) => {
           const newSettingsItem: ISettingsItem = {
             ...settingsItem,
@@ -26,6 +35,8 @@ export const setSettingsItem = createAsyncThunk(
           await setDoc<ISettingsCollection>(userSettingsRef, {
             [itemPath]: newSettingsItem,
           }, { merge: true });
+
+          notify();
 
           return thunkAPI.fulfillWithValue(newSettingsItem);
         }
@@ -37,6 +48,8 @@ export const setSettingsItem = createAsyncThunk(
               await updateDoc<ISettingsCollection>(userSettingsRef, {
                 [itemPath]: settingsItem,
               });
+
+              notify();
 
               return thunkAPI.fulfillWithValue(settingsItem);
             } else {
