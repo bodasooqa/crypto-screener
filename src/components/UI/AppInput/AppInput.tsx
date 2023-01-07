@@ -3,6 +3,7 @@ import './AppInput.scss';
 
 interface AppInputProps {
   label?: string;
+  max?: number;
   name?: string;
   placeholder?: string;
   preText?: string;
@@ -33,6 +34,7 @@ const AppInput: FC<AppInputProps> = (props) => {
         value={ props.value }
         onInput={ props.onInput }
         onChange={ props.onChange }
+        max={ props.max }
       />
     </div>
   );

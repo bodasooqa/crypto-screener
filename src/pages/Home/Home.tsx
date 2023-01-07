@@ -16,17 +16,17 @@ const Home = () => {
 
   const [pairs] = useState([
     { exchange: Exchange.BINANCE, symbol: 'BTCUSDT' },
-    { exchange: Exchange.BINANCE, symbol: 'ETHUSDT' },
-    { exchange: Exchange.BINANCE, symbol: 'SOLUSDT' },
-    { exchange: Exchange.BINANCE, symbol: 'ADAUSDT' },
-    { exchange: Exchange.BINANCE, symbol: 'ATOMUSDT' },
-    { exchange: Exchange.BINANCE, symbol: 'XRPUSDT' },
-    { exchange: Exchange.BYBIT, symbol: 'BTCUSDT' },
-    { exchange: Exchange.BYBIT, symbol: 'ETHUSDT' },
-    { exchange: Exchange.BYBIT, symbol: 'SOLUSDT' },
-    { exchange: Exchange.BYBIT, symbol: 'ADAUSDT' },
-    { exchange: Exchange.BYBIT, symbol: 'ATOMUSDT' },
-    { exchange: Exchange.BYBIT, symbol: 'XRPUSDT' },
+    // { exchange: Exchange.BINANCE, symbol: 'ETHUSDT' },
+    // { exchange: Exchange.BINANCE, symbol: 'SOLUSDT' },
+    // { exchange: Exchange.BINANCE, symbol: 'ADAUSDT' },
+    // { exchange: Exchange.BINANCE, symbol: 'ATOMUSDT' },
+    // { exchange: Exchange.BINANCE, symbol: 'XRPUSDT' },
+    // { exchange: Exchange.BYBIT, symbol: 'BTCUSDT' },
+    // { exchange: Exchange.BYBIT, symbol: 'ETHUSDT' },
+    // { exchange: Exchange.BYBIT, symbol: 'SOLUSDT' },
+    // { exchange: Exchange.BYBIT, symbol: 'ADAUSDT' },
+    // { exchange: Exchange.BYBIT, symbol: 'ATOMUSDT' },
+    // { exchange: Exchange.BYBIT, symbol: 'XRPUSDT' },
   ]);
 
   useEffect(() => {

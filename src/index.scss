@@ -7,9 +7,10 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-button, input {
+button, input, select {
   font-family: $main-font;
   font-size: 14px;
+  line-height: 16px;
 }
 
 button {

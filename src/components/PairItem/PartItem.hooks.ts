@@ -6,17 +6,22 @@ import { baseChartConfig, baseLineConfig } from '../../utils/constants';
 import { logWS } from '../../utils/logger';
 import { Kline, KlineColor } from '../../models/kline.model';
 import { Exchange, KlineInterval } from '../../models/exchange.model';
+import { INewSettingsItem } from '../../models/settings.model';
 
-export const useKlineData = () => {
+export const useKlineData = (settings: INewSettingsItem | null) => {
   const [kline, setKline] = useState<Kline>([]);
   const [dayOpenPrice, setDayOpenPrice] = useState<number>(0);
 
+  const candlesQty = useMemo(() => {
+    return kline.length;
+  }, [kline]);
+
   const actualPrice = useMemo(() => {
-    return kline[kline.length - 1]?.c;
+    return kline[candlesQty - 1]?.c;
   }, [kline]);
 
   const actualVolume = useMemo(() => {
-    return Number(kline[kline.length - 1]?.v);
+    return Number(kline[candlesQty - 1]?.v);
   }, [kline]);
 
   const actualColor = useMemo(() => {
@@ -35,7 +40,7 @@ export const useKlineData = () => {
   }, [kline]);
 
   const percentDiff = useMemo(() => {
-    return (100 - dayOpenPrice / (Number(kline[kline.length - 1]?.c) / 100)) || 0;
+    return (100 - dayOpenPrice / (Number(kline[candlesQty - 1]?.c) / 100)) || 0;
   }, [kline]);
 
   const percentColor = useMemo(() => {
@@ -49,8 +54,14 @@ export const useKlineData = () => {
   }, [percentDiff]);
 
   const middleVolume = useMemo(() => {
-    return kline.reduce((prev, next) => prev + Number(next.v), 0) / 100;
-  }, [kline]);
+    const klineForCalculate = !!settings?.avgVolNumber && settings.avgVolNumber <= candlesQty
+      ? kline.slice(0, settings.avgVolNumber)
+      : kline;
+
+    console.log(klineForCalculate)
+
+    return klineForCalculate.reduce((prev, next) => prev + Number(next.v), 0) / 100;
+  }, [kline, settings?.avgVolNumber]);
 
   const volumePercentDiff = useMemo(() => {
     const percentDiff = (100 - middleVolume / (actualVolume / 100));
@@ -62,6 +73,7 @@ export const useKlineData = () => {
     actualColor,
     chartData,
     dayOpenPrice,
+    candlesQty,
     percentDiff,
     percentColor,
     actualVolume,

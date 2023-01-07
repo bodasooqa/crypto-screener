@@ -1,8 +1,9 @@
 import { Exchange, KlineInterval } from './exchange.model';
 
 export interface ISettingsItem {
+  avgVolNumber: number | null;
   id: string;
-  interval: KlineInterval | '';
+  interval: KlineInterval;
   symbol: string;
   exchange: Exchange;
 }

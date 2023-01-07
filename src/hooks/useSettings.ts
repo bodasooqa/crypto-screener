@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Exchange, KlineInterval } from '../models/exchange.model';
-import { ISelectOption, SelectData } from '../models/ui.model';
+import { Exchange } from '../models/exchange.model';
 import { useAppDispatch, useAppSelector } from './index';
 import { INewSettingsItem } from '../models/settings.model';
 import { setSettingsItem } from '../store/features/settings/actionCreators';
@@ -8,44 +7,28 @@ import { setSettingsItem } from '../store/features/settings/actionCreators';
 export const useSettings = (pair: string, exchange: Exchange) => {
   const symbolKey = `${ exchange }-${ pair }`;
 
-  const minutes: KlineInterval[] = ['5m', '15m', '30m'];
-  const hours: KlineInterval[] = ['1h', '2h', '4h', '6h', '12h'];
-  const days: KlineInterval[] = ['1d', '1w', '1M'];
-
   const initialSettings: INewSettingsItem = {
+    avgVolNumber: null,
     exchange,
+    interval: '5m',
     symbol: pair,
-    interval: '',
   }
 
   const dispatch = useAppDispatch();
 
   const { isLoading } = useAppSelector(state => state.settings);
-  const settings = useAppSelector(state => {
-    return (!!state.settings.value && state.settings.value[symbolKey]) || null;
-  });
-
-  const intervalOptions: SelectData<KlineInterval> = [
-    {
-      title: 'Minutes',
-      options: minutes.map((value): ISelectOption<KlineInterval> => ({ value })),
-    },
-    {
-      title: 'Hours',
-      options: hours.map((value): ISelectOption<KlineInterval> => ({ value })),
-    },
-    {
-      title: 'Days',
-      options: days.map((value): ISelectOption<KlineInterval> => ({ value })),
-    },
-  ];
+  const storedSettings = useAppSelector(({ settings }) => settings);
 
   const [settingsChanged, setSettingsChanged] = useState(false);
-  const [interval, setSettingsInterval] = useState<KlineInterval>('5m');
+  const [newSettings, setNewSettings] = useState<INewSettingsItem>(initialSettings);
   const [settingsOpened, setSettingsOpened] = useState(false);
 
   const settingsButtonRef = useRef(null);
   const settingsOverlayRef = useRef(null);
+
+  const settings = useMemo(() => {
+    return (!!storedSettings.value && storedSettings.value[symbolKey]) || null;
+  }, [storedSettings]);
 
   const isSettingsLoading = useMemo(() => {
     return isLoading.all || isLoading.pairs.includes(symbolKey);
@@ -53,16 +36,16 @@ export const useSettings = (pair: string, exchange: Exchange) => {
 
   const updateSettings = () => {
     if (!!settings) {
-      if (settings.interval !== interval) {
-        dispatch(setSettingsItem({
+      if (JSON.stringify(settings) !== JSON.stringify(newSettings)) {
+        return dispatch(setSettingsItem({
           ...settings,
-          interval,
+          ...newSettings,
         }));
       }
     } else {
-      dispatch(setSettingsItem({
+      return dispatch(setSettingsItem({
         ...initialSettings,
-        interval,
+        ...newSettings,
       }));
     }
   };
@@ -76,15 +59,15 @@ export const useSettings = (pair: string, exchange: Exchange) => {
 
   return {
     settings,
-    interval,
-    intervalOptions,
+    newSettings,
     settingsOpened,
     settingsButtonRef,
     settingsOverlayRef,
     isSettingsLoading,
     settingsChanged,
+    initialSettings,
     setSettingsOpened,
-    setSettingsInterval,
+    setNewSettings,
     updateSettings,
     setSettingsChanged
   }

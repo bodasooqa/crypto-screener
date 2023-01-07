@@ -1,11 +1,11 @@
-import React, { ChangeEvent, FC, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { FC, useContext, useEffect, useMemo, useRef } from 'react';
 import './PairItem.scss';
 import { Context } from '../../index';
 import { useFetching } from '../../hooks/useFetching';
 import { useChart, useKlineData, useSocket } from './PartItem.hooks';
 import { formatKline, updateKline } from '../../utils/kline';
 import Loader from '../Loader/Loader';
-import { Exchange, KlineInterval } from '../../models/exchange.model';
+import { Exchange } from '../../models/exchange.model';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear, faBell, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { CSSTransition } from 'react-transition-group';
@@ -15,6 +15,7 @@ import CardButton from '../UI/CardButton/CardButton';
 import { useNotifications } from '../../hooks/useNotifications';
 import { useAuth } from '../../hooks/useAuth';
 import { useSettings } from '../../hooks/useSettings';
+import { INewSettingsItem } from '../../models/settings.model';
 
 interface PairItemProps {
   exchange: Exchange;
@@ -33,35 +34,21 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
   const errorRef = useRef(null);
 
   const [getKline, isKlineLoading, error] = useFetching(async () => {
-    const { data } = await network[exchange].getKline(pair, interval);
+    const { data } = await network[exchange].getKline(pair, newSettings.interval);
     const klineData = formatKline(data, exchange);
     setDayOpenPrice(Number(klineData[0].o));
     setKline(klineData);
   });
 
   const {
-    actualPrice,
-    actualColor,
-    chartData,
-    dayOpenPrice,
-    percentDiff,
-    percentColor,
-    actualVolume,
-    middleVolume,
-    volumePercentDiff,
-    setKline,
-    setDayOpenPrice
-  } = useKlineData();
-
-  const {
     settings,
-    interval,
+    newSettings,
     settingsOpened,
     settingsButtonRef,
     settingsOverlayRef,
     isSettingsLoading,
     setSettingsOpened,
-    setSettingsInterval,
+    setNewSettings,
     setSettingsChanged
   } = useSettings(pair, exchange);
 
@@ -77,14 +64,32 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
     checkAndNotify
   } = useNotifications(pair, exchange);
 
+  const {
+    actualPrice,
+    actualColor,
+    chartData,
+    dayOpenPrice,
+    candlesQty,
+    percentDiff,
+    percentColor,
+    actualVolume,
+    middleVolume,
+    volumePercentDiff,
+    setKline,
+    setDayOpenPrice
+  } = useKlineData(settings);
+
   const { chartInitiated, initChart, updateChart } = useChart();
 
-  const { initSocket, closeConnection } = useSocket(pair, exchange, interval, (candleData) => {
-    setKline(oldKline => {
-      const updatedKline = updateKline(oldKline, candleData);
-      return [...updatedKline];
-    });
-  });
+  const { initSocket, closeConnection } = useSocket(
+    pair, exchange, newSettings.interval,
+    (candleData) => {
+      setKline(oldKline => {
+        const updatedKline = updateKline(oldKline, candleData);
+        return [...updatedKline];
+      });
+    }
+  );
 
   const errorToShow = useMemo(() => {
     return error?.response?.data.msg || error?.response?.data.retMsg || 'Exchange connection error';
@@ -94,8 +99,11 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
     await getKline();
   }
 
-  const onIntervalSelect = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSettingsInterval(event.target.value as KlineInterval);
+  const onSettingsChanged = (editableSettings: INewSettingsItem) => {
+    setNewSettings({
+      ...newSettings,
+      ...editableSettings
+    });
     setSettingsChanged(true);
   };
 
@@ -131,11 +139,11 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
 
   useEffect(() => {
     initPair();
-  }, [interval]);
+  }, [newSettings.interval]);
 
   useEffect(() => {
-    if (!!settings?.interval) {
-      setSettingsInterval(settings.interval as KlineInterval);
+    if (!!settings) {
+      setNewSettings(settings);
     }
   }, [settings]);
 
@@ -150,7 +158,7 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
       <div className="pair-item__header">
         <div className="pair-item__header__text">
           <span className="pair-item__exchange">
-            { exchange.toUpperCase() } &#8226; { interval }
+            { exchange.toUpperCase() } &#8226; { newSettings.interval }
           </span>
           <span className="pair-item__symbol">
             { pair }
@@ -234,8 +242,10 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
           ref={ settingsOverlayRef }
           exchange={ exchange }
           symbol={ pair }
-          interval={ interval }
-          onIntervalSelect={ onIntervalSelect }
+          settings={ newSettings }
+          isLoading={ isSettingsLoading }
+          onSettingsChanged={ onSettingsChanged }
+          maxAvgVolNumber={ candlesQty }
         />
       </CSSTransition>
 

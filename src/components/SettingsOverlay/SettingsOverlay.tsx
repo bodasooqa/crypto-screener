@@ -1,39 +1,122 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import './SettingsOverlay.scss';
-import { Exchange, KlineInterval } from '../../models/exchange.model';
+import { Exchange } from '../../models/exchange.model';
 import AppSelect from '../UI/AppSelect/AppSelect';
+import AppInput from '../UI/AppInput/AppInput';
 import { useSettings } from '../../hooks/useSettings';
+import { INewSettingsItem } from '../../models/settings.model';
+import AppButton from '../UI/AppButton/AppButton';
+import Loader from '../Loader/Loader';
+import { isEqual } from '../../utils/objects';
+import { getUTCDayStart } from '../../utils/kline';
+import { klineIntervalToNum } from '../../utils/format-string';
+import { intervalOptions } from '../../utils/constants';
 
 interface SettingsOverlayProps {
   exchange: Exchange;
+  isLoading: boolean;
+  maxAvgVolNumber: number;
   symbol: string;
-  interval: KlineInterval;
-  onIntervalSelect: (event: ChangeEvent<HTMLSelectElement>) => void;
+  settings: INewSettingsItem;
+  onSettingsChanged: (settings: INewSettingsItem) => void;
 }
 
 const SettingsOverlay = React.forwardRef<HTMLDivElement, SettingsOverlayProps>((
-  { symbol, exchange, interval, onIntervalSelect },
+  { symbol, exchange, isLoading, maxAvgVolNumber, settings, onSettingsChanged },
   ref
 ) => {
-  const { intervalOptions } = useSettings(symbol, exchange);
+  const { initialSettings } = useSettings(symbol, exchange);
+
+  const [editableSettings, setEditableSettings] = useState(initialSettings);
+  const [firstInit, setFirstInit] = useState(true);
+
+  const isSettingsEqual = useMemo(() => {
+    return isEqual(settings, editableSettings);
+  }, [settings, editableSettings]);
+
+  const isSubmitBtnDisabled = useMemo(() => {
+    return isSettingsEqual || isLoading;
+  }, [isSettingsEqual, isLoading]);
+
+  const currentMaxAvgVolNumber = useMemo(() => {
+    return Math.ceil((Date.now() - getUTCDayStart()) / (1000 * 60 * klineIntervalToNum(editableSettings.interval)))
+      || 0;
+  }, [editableSettings.interval]);
+
+  const maxAvgVolNumberToShow = useMemo(() => {
+    return settings.interval === editableSettings.interval
+      ? maxAvgVolNumber
+      : currentMaxAvgVolNumber;
+  }, [maxAvgVolNumber, currentMaxAvgVolNumber, settings.interval, editableSettings.interval]);
+
+  const onSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    onSettingsChanged(editableSettings);
+  };
+
+  const onFieldChanged = (event: ChangeEvent<HTMLSelectElement | HTMLInputElement>, key: keyof INewSettingsItem) => {
+    setEditableSettings({
+      ...editableSettings,
+      [key]: key === 'avgVolNumber'
+        ? (event as ChangeEvent<HTMLInputElement>).target.valueAsNumber
+        : event.target.value
+    })
+  };
+
+  useEffect(() => {
+    setEditableSettings(settings);
+  }, [settings]);
+
+  useEffect(() => {
+    if (!firstInit) {
+      setEditableSettings({
+        ...editableSettings,
+        avgVolNumber: editableSettings.interval === settings.interval
+          ? settings.avgVolNumber
+          : null
+      });
+    } else {
+      setFirstInit(false);
+    }
+  }, [editableSettings.interval]);
 
   return (
     <div className="settings-overlay" ref={ ref }>
       <div className="settings-overlay__header">
         <h4>Settings <b>{ symbol }</b></h4>
-
       </div>
       <div className="settings-overlay__content">
         <form
-          className="settings-overlay__content__form"
+          className="settings-overlay__form"
+          onSubmit={ onSubmit }
         >
-          <AppSelect
-            label="Interval"
-            placeholder='Interval'
-            options={ intervalOptions }
-            value={ interval }
-            onChange={ onIntervalSelect }
-          />
+          <div className="settings-overlay__form__row">
+            <AppSelect
+              label="Interval"
+              placeholder="Interval"
+              options={ intervalOptions }
+              value={ editableSettings.interval }
+              onChange={ (event) => onFieldChanged(event, 'interval') }
+            />
+
+            <AppInput
+              label="Average Vol candles"
+              placeholder={ `Max ${ maxAvgVolNumberToShow }` }
+              type="number"
+              max={ maxAvgVolNumberToShow }
+              value={ String(editableSettings.avgVolNumber) }
+              onChange={ (event) => onFieldChanged(event, 'avgVolNumber') }
+            />
+          </div>
+
+          <AppButton
+            type="submit"
+            disabled={ isSubmitBtnDisabled }
+          >
+            { isLoading
+              ? <Loader size="sm" color="black" />
+              : 'Save' }
+          </AppButton>
         </form>
       </div>
     </div>

@@ -38,4 +38,27 @@
     border-top: 1px solid $gray-color;
     box-shadow: 0 10px 12px -18px black inset;
   }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    &__row {
+      display: flex;
+      gap: 10px;
+
+      > div {
+        &:first-child {
+          flex: 0;
+          min-width: 60px;
+        }
+
+        &:last-child {
+          flex: 1;
+          width: 100%;
+        }
+      }
+    }
+  }
 }
