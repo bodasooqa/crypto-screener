@@ -104,6 +104,7 @@ const SettingsOverlay = React.forwardRef<HTMLDivElement, SettingsOverlayProps>((
               placeholder={ `Max ${ maxAvgVolNumberToShow }` }
               mask={ { mask: '9', repeat: 3, showMaskOnHover: false, placeholder: '' } }
               max={ maxAvgVolNumberToShow }
+              min={ 2 }
               name='avgVolNumber'
               type='text'
               value={ String(editableSettings.avgVolNumber) }

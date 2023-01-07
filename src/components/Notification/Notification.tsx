@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import './Notification.scss';
 import { IBarNotification } from '../../models/notifications.model';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,11 +13,21 @@ interface NotificationProps {
 const Notification: FC<NotificationProps> = ({ notification }) => {
   const dispatch = useAppDispatch();
 
+  const removeNotification = () => {
+    dispatch(removeNotificationFromBar(notification.id));
+  }
+
+  useEffect(() => {
+    if (!!notification.timeout) {
+      setTimeout(() => removeNotification(), notification.timeout);
+    }
+  }, []);
+
   return (
     <div className="notification">
       <button
         className="notification__close-btn"
-        onClick={ () => dispatch(removeNotificationFromBar(notification.id)) }
+        onClick={ removeNotification }
       >
         <FontAwesomeIcon icon={ faXmark }></FontAwesomeIcon>
       </button>

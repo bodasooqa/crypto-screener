@@ -42,6 +42,7 @@ export interface IBarNotification {
   text: string;
   icon?: IconDefinition;
   color?: string;
+  timeout?: number;
 }
 
 export type INewBarNotification = Omit<IBarNotification, 'id'>;

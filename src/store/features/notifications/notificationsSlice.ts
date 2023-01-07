@@ -37,7 +37,7 @@ export const notificationsSlice = createSlice({
       const newNotification: IBarNotification = {
         id: generateUuid(),
         ...payload
-      }
+      };
 
       state.forBar.push(newNotification);
     },

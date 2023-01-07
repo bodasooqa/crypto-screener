@@ -6,6 +6,7 @@ import { generateNewUuidForSettingsItem } from '../../../utils/uuid';
 import { INewSettingsItem, ISettingsCollection, ISettingsItem } from '../../../models/settings.model';
 import { addNotificationForBar } from '../notifications/notificationsSlice';
 import { toCapitalize } from '../../../utils/format-string';
+import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons';
 
 export const setSettingsItem = createAsyncThunk(
   'settings/setSettingsItem',
@@ -22,7 +23,9 @@ export const setSettingsItem = createAsyncThunk(
         const notify = () => {
           thunkAPI.dispatch(addNotificationForBar({
             title: `Settings — ${ toCapitalize(settingsItem.exchange) } ${ settingsItem.symbol }`,
-            text: 'Changes saved successfully'
+            text: 'Changes saved successfully',
+            timeout: 4000,
+            icon: faFloppyDisk,
           }));
         }
 

@@ -5,13 +5,13 @@ import Inputmask from 'inputmask';
 interface AppInputProps {
   label?: string;
   mask?: string | Inputmask.Options;
+  min?: number;
   max?: number;
   name?: string;
   placeholder?: string;
   preText?: string;
   type: HTMLInputTypeAttribute;
   value: string;
-  onInput?: (event: ChangeEvent<HTMLInputElement>) => void;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -20,15 +20,23 @@ const AppInput: FC<AppInputProps> = (props) => {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const onInput = (event: ChangeEvent<HTMLInputElement>) => {
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (!!props.max) {
       if (parseFloat(event.target.value) > props.max) {
         event.target.value = String(props.max);
       }
     }
 
-    if (!!props.onInput) {
-      props.onInput(event);
+    if (!!props.onChange) {
+      props.onChange(event);
+    }
+  }
+
+  const onBlur = (event: ChangeEvent<HTMLInputElement>) => {
+    if (!!props.min) {
+      if (parseFloat(event.target.value) < props.min) {
+        event.target.value = String(props.min);
+      }
     }
 
     if (!!props.onChange) {
@@ -67,8 +75,9 @@ const AppInput: FC<AppInputProps> = (props) => {
         type={ props.type }
         placeholder={ props.placeholder }
         value={ props.value }
-        onInput={ onInput }
-        onChange={ props.onChange }
+        onChange={ onChange }
+        onBlur={ onBlur }
+        min={ props.min }
         max={ props.max }
       />
     </div>
