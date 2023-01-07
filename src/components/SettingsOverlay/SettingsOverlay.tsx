@@ -9,7 +9,7 @@ import AppButton from '../UI/AppButton/AppButton';
 import Loader from '../Loader/Loader';
 import { isEqual } from '../../utils/objects';
 import { getUTCDayStart } from '../../utils/kline';
-import { klineIntervalToNum } from '../../utils/format-string';
+import { klineIntervalToNum, toNumberString } from '../../utils/format-string';
 import { intervalOptions } from '../../utils/constants';
 
 interface SettingsOverlayProps {
@@ -58,7 +58,7 @@ const SettingsOverlay = React.forwardRef<HTMLDivElement, SettingsOverlayProps>((
     setEditableSettings({
       ...editableSettings,
       [key]: key === 'avgVolNumber'
-        ? (event as ChangeEvent<HTMLInputElement>).target.valueAsNumber
+        ? parseInt(toNumberString((event as ChangeEvent<HTMLInputElement>).target.value))
         : event.target.value
     })
   };
@@ -102,8 +102,10 @@ const SettingsOverlay = React.forwardRef<HTMLDivElement, SettingsOverlayProps>((
             <AppInput
               label="Average Vol candles"
               placeholder={ `Max ${ maxAvgVolNumberToShow }` }
-              type="number"
+              mask={ { mask: '9', repeat: 3, showMaskOnHover: false, placeholder: '' } }
               max={ maxAvgVolNumberToShow }
+              name='avgVolNumber'
+              type='text'
               value={ String(editableSettings.avgVolNumber) }
               onChange={ (event) => onFieldChanged(event, 'avgVolNumber') }
             />

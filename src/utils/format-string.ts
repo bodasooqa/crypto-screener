@@ -5,8 +5,12 @@ export const toCapitalize = (str: string): string => {
   return `${ str[0].toUpperCase() }${ str.substring(1) }`
 };
 
+export const toNumberString = (str: string): string => {
+  return str.replace(/\D/g,'');
+}
+
 export const klineIntervalToNum = (str: KlineInterval): number => {
-  const numStr = str.replace(/\D/g,'');
+  const numStr = toNumberString(str);
 
   if (minutes.includes(str)) {
     return parseInt(numStr);

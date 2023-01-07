@@ -58,8 +58,6 @@ export const useKlineData = (settings: INewSettingsItem | null) => {
       ? kline.slice(0, settings.avgVolNumber)
       : kline;
 
-    console.log(klineForCalculate)
-
     return klineForCalculate.reduce((prev, next) => prev + Number(next.v), 0) / 100;
   }, [kline, settings?.avgVolNumber]);
 

@@ -148,6 +148,12 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
   }, [settings]);
 
   useEffect(() => {
+    if (!isSettingsLoading) {
+      setSettingsOpened(false);
+    }
+  }, [isSettingsLoading]);
+
+  useEffect(() => {
     return () => {
       closeConnection();
     }
