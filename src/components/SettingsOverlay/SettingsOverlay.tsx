@@ -11,6 +11,8 @@ import { isEqual } from '../../utils/objects';
 import { getUTCDayStart } from '../../utils/kline';
 import { klineIntervalToNum, toNumberString } from '../../utils/format-string';
 import { intervalOptions } from '../../utils/constants';
+import { useAppDispatch } from '../../hooks';
+import { removeSelectedSymbol } from '../../store/features/symbols/symbolsSlice';
 
 interface SettingsOverlayProps {
   exchange: Exchange;
@@ -25,7 +27,7 @@ const SettingsOverlay = React.forwardRef<HTMLDivElement, SettingsOverlayProps>((
   { symbol, exchange, isLoading, maxAvgVolNumber, settings, onSettingsChanged },
   ref
 ) => {
-  const { initialSettings } = useSettings(symbol, exchange);
+  const { initialSettings, remove } = useSettings(symbol, exchange);
 
   const [editableSettings, setEditableSettings] = useState(initialSettings);
   const [firstInit, setFirstInit] = useState(true);
@@ -119,6 +121,10 @@ const SettingsOverlay = React.forwardRef<HTMLDivElement, SettingsOverlayProps>((
             { isLoading
               ? <Loader size="sm" color="black" />
               : 'Save' }
+          </AppButton>
+
+          <AppButton color='red' onClick={ remove }>
+            Remove
           </AppButton>
         </form>
       </div>

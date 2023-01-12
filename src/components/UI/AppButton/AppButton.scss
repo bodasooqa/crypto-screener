@@ -11,4 +11,16 @@
   border-radius: 6px;
   padding: 6px 12px;
   color: black;
+
+  &--color {
+    &-main {
+      background: $primary-color;
+      color: black;
+    }
+
+    &-red {
+      background: $danger-color;
+      color: white;
+    }
+  }
 }

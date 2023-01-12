@@ -1,20 +1,25 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Exchange } from '../models/exchange.model';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Exchange, IExchangeSymbol } from '../models/exchange.model';
 import { useAppDispatch, useAppSelector } from './index';
 import { INewSettingsItem } from '../models/settings.model';
 import { setSettingsItem } from '../store/features/settings/actionCreators';
+import { removeSelectedSymbol } from '../store/features/symbols/symbolsSlice';
+import { Context } from '../index';
+import { StorageKeys } from '../models/storage.model';
 
-export const useSettings = (pair: string, exchange: Exchange) => {
-  const symbolKey = `${ exchange }-${ pair }`;
+export const useSettings = (symbol: string, exchange: Exchange) => {
+  const symbolKey = `${ exchange }-${ symbol }`;
 
   const initialSettings: INewSettingsItem = {
     avgVolNumber: null,
     exchange,
     interval: '5m',
-    symbol: pair,
+    symbol,
   }
 
   const dispatch = useAppDispatch();
+
+  const { storage } = useContext(Context);
 
   const { isLoading } = useAppSelector(state => state.settings);
   const storedSettings = useAppSelector(({ settings }) => settings);
@@ -50,6 +55,14 @@ export const useSettings = (pair: string, exchange: Exchange) => {
     }
   };
 
+  const remove = () => {
+    const selectedSymbols = storage.getCookie<IExchangeSymbol[]>(StorageKeys.SELECTED_SYMBOLS, true);
+    const idx = selectedSymbols.findIndex((item) => item.symbol === symbol && item.exchange === exchange);
+    selectedSymbols.splice(idx, 1);
+    storage.setCookie<IExchangeSymbol[]>(StorageKeys.SELECTED_SYMBOLS, selectedSymbols, true);
+    dispatch(removeSelectedSymbol({ symbol, exchange }));
+  };
+
   useEffect(() => {
     if (settingsChanged) {
       updateSettings();
@@ -69,6 +82,7 @@ export const useSettings = (pair: string, exchange: Exchange) => {
     setSettingsOpened,
     setNewSettings,
     updateSettings,
-    setSettingsChanged
+    setSettingsChanged,
+    remove
   }
 }

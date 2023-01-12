@@ -6,6 +6,7 @@ interface AppButtonProps {
   type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
   className?: string | string[];
+  color?: string;
   onClick?: () => void;
 }
 
@@ -15,11 +16,12 @@ const AppButton: FC<AppButtonProps> = (
     type = 'button',
     disabled,
     className = '',
+    color,
     onClick
   }
 ) => {
   const appliedClassName = useMemo(() => {
-    return ['app-button'].concat(className).join(' ');
+    return ['app-button', `app-button--color-${ color || 'main' }`].concat(className).join(' ');
   }, [className]);
 
   return (

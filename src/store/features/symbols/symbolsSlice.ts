@@ -26,6 +26,11 @@ export const symbolsSlice = createSlice({
 
     addSelectedSymbol: (state, { payload }: PayloadAction<IExchangeSymbol>) => {
       state.selectedSymbols.push(payload);
+    },
+
+    removeSelectedSymbol: (state, { payload }: PayloadAction<IExchangeSymbol>) => {
+      const idx = state.selectedSymbols.findIndex(({ symbol, exchange }) => symbol === payload.symbol && exchange === payload.exchange);
+      state.selectedSymbols.splice(idx, 1);
     }
   },
   extraReducers: (builder) => {
@@ -47,6 +52,6 @@ export const symbolsSlice = createSlice({
   },
 });
 
-export const { addSelectedSymbol, setSelectedSymbols } = symbolsSlice.actions;
+export const { addSelectedSymbol, setSelectedSymbols, removeSelectedSymbol } = symbolsSlice.actions;
 
 export default symbolsSlice.reducer;
