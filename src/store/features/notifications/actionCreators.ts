@@ -107,7 +107,7 @@ export const removeNotification = createAsyncThunk(
       }
     } catch (err) {
       console.log(err)
-      return thunkAPI.rejectWithValue(`Error getting documents: ${ err }`);
+      return thunkAPI.rejectWithValue(`Error removing document: ${ err }`);
     }
   }
 );
@@ -141,7 +141,7 @@ export const changeNotification = createAsyncThunk(
       }
     } catch (err) {
       console.log(err)
-      return thunkAPI.rejectWithValue(`Error getting documents: ${ err }`);
+      return thunkAPI.rejectWithValue(`Error changing document: ${ err }`);
     }
   }
 );

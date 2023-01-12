@@ -50,9 +50,9 @@ export const updateKline = (kline: Kline, candle: KlineItem): Kline => {
 
 export const formatKline = (data: ExchangeKline, exchange: Exchange): Kline => {
   switch (exchange) {
-    case Exchange.BYBIT:
+    case Exchange.BYBIT_SPOT:
       return data as BybitKline;
-    case Exchange.BINANCE:
+    case Exchange.BINANCE_SPOT:
       return (data as BinanceKline).map(item => ({
         t: item[0],
         o: item[1],

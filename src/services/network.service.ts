@@ -1,12 +1,12 @@
 import { BybitApi } from '../api/bybit.api';
 import { BinanceApi } from '../api/binance.api';
+import { Exchange } from '../models/exchange.model';
 
 export class NetworkService {
-  bybit: BybitApi;
-  binance: BinanceApi;
+  [Exchange.BYBIT_SPOT]: BybitApi = new BybitApi();
+  [Exchange.BINANCE_SPOT]: BinanceApi = new BinanceApi();
 
-  constructor() {
-    this.bybit = new BybitApi();
-    this.binance = new BinanceApi();
-  }
+  public static shared = new NetworkService();
+
+  private constructor() {}
 }

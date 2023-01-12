@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { BinanceKline } from '../models/binance.model';
 import { getUTCDayStart } from '../utils/kline';
+import { IExchangeSymbols } from '../models/exchange.model';
 
 export class BinanceApi {
   private axios: AxiosInstance;
@@ -24,5 +25,9 @@ export class BinanceApi {
         startTime: getUTCDayStart()
       }
     });
+  }
+
+  getSymbols() {
+    return this.axios.get<IExchangeSymbols>('symbols');
   }
 }

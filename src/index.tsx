@@ -5,13 +5,12 @@ import App from './App';
 import { NetworkService } from './services/network.service';
 import { Provider } from 'react-redux';
 import store from './store';
-
-interface GlobalContext {
-  network: NetworkService;
-}
+import { StorageService } from './services/storage.service';
+import { GlobalContext } from './models/app.model';
 
 const contextDefaultValue: GlobalContext = {
-  network: new NetworkService(),
+  network: NetworkService.shared,
+  storage: StorageService.shared,
 };
 
 export const Context = createContext<GlobalContext>(contextDefaultValue);

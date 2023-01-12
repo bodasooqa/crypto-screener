@@ -1,6 +1,7 @@
 export enum Exchange {
-  BYBIT = 'bybit',
-  BINANCE = 'binance',
+  BYBIT_SPOT = 'bybit-spot',
+  BINANCE_SPOT = 'binance-spot',
+  // BINANCE_FEATURES = 'binance-features',
 }
 
 export type KlineInterval =
@@ -17,3 +18,21 @@ export interface BybitErrorData {
 }
 
 export type ErrorData = BinanceErrorData & BybitErrorData;
+
+export interface IExchangeSymbols {
+  symbols: string[];
+}
+
+export interface IExchangesAndSymbols {
+  [key: string]: string[];
+}
+
+export interface IExchangeSymbol {
+  exchange: Exchange,
+  symbol: string;
+}
+
+export interface IExchangeWithSymbols {
+  title: Exchange;
+  symbols: string[];
+}

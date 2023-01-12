@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useMemo, useState } from 'react';
 import './NotificationOverlay.scss';
 import AppInput from '../UI/AppInput/AppInput';
 import AppButton from '../UI/AppButton/AppButton';
@@ -45,14 +45,12 @@ const NotificationOverlay = React.forwardRef<HTMLDivElement, NotificationOverlay
     return !price || isNotificationsLoading || String(parseFloat(price)) === String(floatMomentPrice);
   }, [price]);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
-
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
     setPrice(value);
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const newNotification: INewNotification = {

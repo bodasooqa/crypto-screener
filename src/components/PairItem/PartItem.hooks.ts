@@ -94,21 +94,21 @@ export const useSocket = (
 
   const getWSSEndpoint = (): string => {
     switch (exchange) {
-      case Exchange.BYBIT:
+      case Exchange.BYBIT_SPOT:
         return process.env.REACT_APP_BYBIT_WSS!;
-      case Exchange.BINANCE:
+      case Exchange.BINANCE_SPOT:
         return `${ process.env.REACT_APP_BINANCE_WSS }/${ pair.toLowerCase() }@kline_${ interval }`;
     }
   }
 
   const getWSSParams = (): any => {
     switch (exchange) {
-      case Exchange.BYBIT:
+      case Exchange.BYBIT_SPOT:
         return {
           op: 'subscribe',
           args: [`kline.${ interval }.${ pair }`],
         }
-      case Exchange.BINANCE:
+      case Exchange.BINANCE_SPOT:
         return {
           method: 'SUBSCRIBE',
           params: [`${ pair.toLowerCase() }@kline_${ interval }`]
@@ -145,7 +145,7 @@ export const useSocket = (
   const onOpen = () => {
     logWS('Opened');
 
-    if (exchange === Exchange.BYBIT) {
+    if (exchange === Exchange.BYBIT_SPOT) {
       wsClient?.send(
         JSON.stringify(
           getWSSParams()

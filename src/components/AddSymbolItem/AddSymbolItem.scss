@@ -1,0 +1,16 @@
+@import "src/styles/variables";
+@import "src/styles/mixins";
+
+.add-symbol-item {
+  $add-symbol-item: &;
+  cursor: pointer;
+
+  &:hover:not(#{ $add-symbol-item }--disabled) {
+    font-weight: 400;
+  }
+
+  &--disabled {
+    cursor: default;
+    opacity: .5;
+  }
+}

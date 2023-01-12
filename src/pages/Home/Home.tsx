@@ -2,32 +2,23 @@ import React, { useEffect, useState } from 'react';
 import './Home.scss';
 import PairItem from '../../components/PairItem/PairItem';
 import { Exchange } from '../../models/exchange.model';
-import { useAppDispatch } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { getNotifications } from '../../store/features/notifications/actionCreators';
 import { setNotifications } from '../../store/features/notifications/notificationsSlice';
 import { useAuth } from '../../hooks/useAuth';
 import { getSettings } from '../../store/features/settings/actionCreators';
 import { setSettings } from '../../store/features/settings/settingsSlice';
+import { getBinanceSpotSymbols } from '../../store/features/symbols/actionCreators';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import AddSymbol from '../../components/AddSymbol/AddSymbol';
 
 const Home = () => {
   const [globalUser] = useAuth();
 
   const dispatch = useAppDispatch();
 
-  const [pairs] = useState([
-    { exchange: Exchange.BINANCE, symbol: 'BTCUSDT' },
-    { exchange: Exchange.BINANCE, symbol: 'ETHUSDT' },
-    { exchange: Exchange.BINANCE, symbol: 'SOLUSDT' },
-    { exchange: Exchange.BINANCE, symbol: 'ADAUSDT' },
-    { exchange: Exchange.BINANCE, symbol: 'ATOMUSDT' },
-    { exchange: Exchange.BINANCE, symbol: 'XRPUSDT' },
-    { exchange: Exchange.BYBIT, symbol: 'BTCUSDT' },
-    { exchange: Exchange.BYBIT, symbol: 'ETHUSDT' },
-    { exchange: Exchange.BYBIT, symbol: 'SOLUSDT' },
-    { exchange: Exchange.BYBIT, symbol: 'ADAUSDT' },
-    { exchange: Exchange.BYBIT, symbol: 'ATOMUSDT' },
-    { exchange: Exchange.BYBIT, symbol: 'XRPUSDT' },
-  ]);
+  const pairs = useAppSelector(state => state.symbols.selectedSymbols);
 
   useEffect(() => {
     if (!!globalUser) {
@@ -38,6 +29,10 @@ const Home = () => {
       dispatch(setSettings(null));
     }
   }, [globalUser]);
+
+  useEffect(() => {
+    dispatch(getBinanceSpotSymbols());
+  }, []);
 
   return (
     <div className="home">
@@ -51,6 +46,7 @@ const Home = () => {
                 pair={ symbol }
               />
             ) }
+            <AddSymbol />
           </div>
         </div>
       </div>

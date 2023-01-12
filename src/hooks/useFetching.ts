@@ -19,7 +19,7 @@ export const useFetching = <T = void, E = ErrorData>(callback: () => Promise<T>)
       await callback();
     } catch (err) {
       const error: AxiosError<E> = err as AxiosError<E>;
-      if (!!error && 'response' in error) {
+      if (!!error) {
         setError(error);
       }
     } finally {

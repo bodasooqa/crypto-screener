@@ -24,8 +24,7 @@ interface PairItemProps {
 }
 
 const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
-  const context = useContext(Context);
-  const { network } = context;
+  const { network } = useContext(Context);
   const [globalUser] = useAuth();
 
   const itemKey = `${ exchange }-${ pair }`;
@@ -99,6 +98,18 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
     await getKline();
   }
 
+  const exchangeSplit = useMemo(() => {
+    return exchange.split('-');
+  }, [exchange]);
+
+  const exchangeTitle = useMemo(() => {
+    return exchangeSplit[0];
+  }, [exchangeSplit]);
+
+  const exchangeType = useMemo(() => {
+    return exchangeSplit[1][0].toUpperCase();
+  }, [exchangeSplit]);
+
   const onSettingsChanged = (editableSettings: INewSettingsItem) => {
     setNewSettings({
       ...newSettings,
@@ -131,7 +142,7 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
   }, [notifications]);
 
   useEffect(() => {
-    if (!isKlineLoading) {
+    if (!isKlineLoading && !error) {
       initChart(chartId);
       initSocket();
     }
@@ -164,7 +175,8 @@ const PairItem: FC<PairItemProps> = ({ exchange, pair }) => {
       <div className="pair-item__header">
         <div className="pair-item__header__text">
           <span className="pair-item__exchange">
-            { exchange.toUpperCase() } &#8226; { newSettings.interval }
+            <span className='pair-item__exchange__type'>{ exchangeType }</span>
+            { exchangeTitle.toUpperCase() } &#8226; { newSettings.interval }
           </span>
           <span className="pair-item__symbol">
             { pair }
