@@ -11,8 +11,6 @@ import { isEqual } from '../../utils/objects';
 import { getUTCDayStart } from '../../utils/kline';
 import { klineIntervalToNum, toNumberString } from '../../utils/format-string';
 import { intervalOptions } from '../../utils/constants';
-import { useAppDispatch } from '../../hooks';
-import { removeSelectedSymbol } from '../../store/features/symbols/symbolsSlice';
 
 interface SettingsOverlayProps {
   exchange: Exchange;
